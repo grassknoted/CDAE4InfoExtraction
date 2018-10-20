@@ -113,15 +113,15 @@ def margin_loss(y_true, y_pred):
     :return: a scalar loss value.
     """
 
-    # y_true = tf.cast(y_true, tf.float32)
-    # y_pred = tf.cast(y_pred, tf.float32)
+    # y_true = tf.convert_to_tensor(y_true, dtype=tf.float32)
+    # y_pred = tf.convert_to_tensor(y_pred, dtype=tf.float32)    
     L = y_true * K.square(K.maximum(0., 0.9 - y_pred)) + 0.5 * (1 - y_true) * K.square(K.maximum(0., y_pred - 0.1))
 
-    kl_loss = 1 + log_variance - K.square(mean) - K.exp(log_variance)
+    kl_loss = tf.convert_to_tensor(log_variance, dtype=tf.float32) + tf.convert_to_tensor(log_variance, dtype=tf.float32) - tf.cast(K.square(tf.convert_to_tensor(mean, dtype=tf.float32)), tf.float32) - tf.cast(K.exp(tf.convert_to_tensor(log_variance, dtype=tf.float32)), tf.float32)
     kl_loss = K.sum(kl_loss, axis=-1)
     kl_loss *= -0.5
 
-    return K.mean(K.sum(L, 1) + kl_loss)
+    return tf.convert_to_tensor(K.mean(K.sum(L, 1) + kl_loss), dtype=tf.float32)
 
 
 def train(model, data, args):
