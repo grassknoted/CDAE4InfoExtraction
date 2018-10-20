@@ -25,7 +25,7 @@ This should be **equivalent** with using SSE (sum squared error) and `lam_recon=
 Open an issue or contact me with E-mail `guoxifeng1990@163.com` or WeChat `wenlong-guo`.
 
 
-## Usage
+## Usage - Capsule Network part
 
 **Step 1.
 Install [Keras>=2.0.7](https://github.com/fchollet/keras) 
@@ -37,8 +37,8 @@ pip install keras
 
 **Step 2. Clone this repository to local.**
 ```
-git clone https://github.com/XifengGuo/CapsNet-Keras.git capsnet-keras
-cd capsnet-keras
+git clone https://github.com/grassknoted/CDAE4InfoExtraction
+cd CDAE4InfoExtraction
 ```
 
 **Step 3. Train a CapsNet on MNIST**  
@@ -64,10 +64,6 @@ It will output the testing accuracy and show the reconstructed images.
 The testing data is same as the validation data. It will be easy to test on new data, 
 just change the code as you want.
 
-You can also just *download a model I trained* from 
-https://pan.baidu.com/s/1sldqQo1
-or
-https://drive.google.com/open?id=1A7pRxH7iWzYZekzr-O0nrwqdUUpUpkik
 
 
 **Step 5. Train on multi gpus**   
@@ -145,27 +141,3 @@ independent during reconstruction.
 ![](result/manipulate-8.png)
 ![](result/manipulate-9.png)
 
-
-## Other Implementations
-
-- PyTorch:
-  - [XifengGuo/CapsNet-Pytorch](https://github.com/XifengGuo/CapsNet-Pytorch)
-  - [timomernick/pytorch-capsule](https://github.com/timomernick/pytorch-capsule)
-  - [gram-ai/capsule-networks](https://github.com/gram-ai/capsule-networks)
-  - [nishnik/CapsNet-PyTorch](https://github.com/nishnik/CapsNet-PyTorch.git)
-  - [leftthomas/CapsNet](https://github.com/leftthomas/CapsNet)
-  
-- TensorFlow:
-  - [naturomics/CapsNet-Tensorflow](https://github.com/naturomics/CapsNet-Tensorflow.git)   
-  I referred to some functions in this repository.
-  - [InnerPeace-Wu/CapsNet-tensorflow](https://github.com/InnerPeace-Wu/CapsNet-tensorflow)   
-  - [chrislybaer/capsules-tensorflow](https://github.com/chrislybaer/capsules-tensorflow)
-
-- MXNet:
-  - [AaronLeong/CapsNet_Mxnet](https://github.com/AaronLeong/CapsNet_Mxnet)
-  
-- Chainer:
-  - [soskek/dynamic_routing_between_capsules](https://github.com/soskek/dynamic_routing_between_capsules)
-
-- Matlab:
-  - [yechengxi/LightCapsNet](https://github.com/yechengxi/LightCapsNet)
