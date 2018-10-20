@@ -49,8 +49,10 @@ def CapsNet(input_shape, n_class, routings):
     primarycaps = PrimaryCap(conv1, dim_capsule=8, n_channels=32, kernel_size=9, strides=2, padding='valid')
 
     # Layer 3: Capsule layer. Routing algorithm works here.
+    global mean
     mean = CapsuleLayer(num_capsule=n_class, dim_capsule=16, routings=routings,
                              name='mean')(primarycaps)
+    global log_variance
     log_variance = CapsuleLayer(num_capsule=n_class, dim_capsule=16, routings=routings,
                              name='log_variance')(primarycaps)
 
@@ -104,9 +106,9 @@ def CapsNet(input_shape, n_class, routings):
     return train_model, eval_model, manipulate_model
 
 
-def margin_loss(y_true, y_pred):
+def total_loss(y_true, y_pred):
     """
-    Margin loss for Eq.(4). When y_true[i, :] contains not just one `1`, this loss should work too. Not test it.
+    Total loss = Margin loss for Eq.(4) in Hinton et. al. + KL Divergence loss of the VAE. When y_true[i, :] contains not just one `1`, this loss should work too. Not test it.
     Also adding the KL Divergence loss of the distributions. If training is poor, try to reconstruct this loss.
     :param y_true: [None, n_classes]
     :param y_pred: [None, num_capsule]
@@ -114,14 +116,18 @@ def margin_loss(y_true, y_pred):
     """
 
     # y_true = tf.convert_to_tensor(y_true, dtype=tf.float32)
-    # y_pred = tf.convert_to_tensor(y_pred, dtype=tf.float32)    
+    # y_pred = tf.convert_to_tensor(y_pred, dtype=tf.float32) 
+     
+    # L is of dimension(?,10)  
     L = y_true * K.square(K.maximum(0., 0.9 - y_pred)) + 0.5 * (1 - y_true) * K.square(K.maximum(0., y_pred - 0.1))
-
+    # kl_loss is of dimension (?,10,16). Be careful when you add the two
     kl_loss = tf.convert_to_tensor(log_variance, dtype=tf.float32) + tf.convert_to_tensor(log_variance, dtype=tf.float32) - tf.cast(K.square(tf.convert_to_tensor(mean, dtype=tf.float32)), tf.float32) - tf.cast(K.exp(tf.convert_to_tensor(log_variance, dtype=tf.float32)), tf.float32)
     kl_loss = K.sum(kl_loss, axis=-1)
     kl_loss *= -0.5
 
-    return tf.convert_to_tensor(K.mean(K.sum(L, 1) + kl_loss), dtype=tf.float32)
+    L+= kl_loss
+
+    return tf.convert_to_tensor(K.mean(K.sum(L, axis=1)), dtype=tf.float32)
 
 
 def train(model, data, args):
@@ -145,14 +151,18 @@ def train(model, data, args):
 
     # compile the model
     model.compile(optimizer=optimizers.Adam(lr=args.lr),
-                  loss=[margin_loss, 'mse'],
+                  loss=[total_loss, 'mse'],
                   loss_weights=[1., args.lam_recon],
                   metrics={'capsnet': 'accuracy'})
 
-    """
+    
     # Training without data augmentation:
-    model.fit([x_train, y_train], [y_train, x_train], batch_size=args.batch_size, epochs=args.epochs,
-              validation_data=[[x_test, y_test], [y_test, x_test]], callbacks=[log, tb, checkpoint, lr_decay])
+
+    model.fit([x_train, y_train], [y_train, x_train],
+     batch_size=args.batch_size, 
+     epochs=args.epochs,
+     validation_data=[[x_test, y_test], [y_test, x_test]], 
+     callbacks=[log, tb, checkpoint, lr_decay])
     """
 
     # Begin: Training with data augmentation ---------------------------------------------------------------------#
@@ -171,7 +181,7 @@ def train(model, data, args):
                         validation_data=[[x_test, y_test], [y_test, x_test]],
                         callbacks=[log, tb, checkpoint, lr_decay])
     # End: Training with data augmentation -----------------------------------------------------------------------#
-
+	"""
     model.save_weights(args.save_dir + '/trained_model.h5')
     print('Trained model saved to \'%s/trained_model.h5\'' % args.save_dir)
 
