@@ -15,21 +15,27 @@ Result:
     
 Author: Xifeng Guo, E-mail: `guoxifeng1990@163.com`, Github: `https://github.com/XifengGuo/CapsNet-Keras`
 """
-
+import os
+import cv2
+import glob
+import ntpath
 import numpy as np
+import pandas as pd
+from PIL import Image
 import tensorflow as tf
-from keras.layers import Lambda
-from keras import layers, models, optimizers
 from keras import backend as K
-from keras.utils import to_categorical
+from keras.layers import Lambda
 import matplotlib.pyplot as plt
 from utils import combine_images
-from PIL import Image
+from keras.utils import to_categorical
+from keras import layers, models, optimizers
 from capsulelayers import CapsuleLayer, PrimaryCap, Length, Mask
 
 K.set_image_data_format('channels_last')
 mean = -1          # Dummy Values
 log_variance = -1  # Dummy Values
+
+dataset_path = "../Dataset/"
 
 def CapsNet(input_shape, n_class, routings):
     """
@@ -243,6 +249,34 @@ def load_mnist():
     y_test = to_categorical(y_test.astype('float32'))
     return (x_train, y_train), (x_test, y_test)
 
+def get_file_name(path):
+    head, tail = ntpath.split(path)
+    return str(tail) or str(ntpath.basename(head))
+
+def load_dataset(dataset_path):
+    classes = ['cats', 'dogs', 'fox']
+
+    labels_dataframe = pd.read_csv(dataset_path+'labels.csv')
+    
+    data = []
+    labels = []
+    for class_name in classes:
+        img_dir = dataset_path+str(class_name)+'/'
+        data_path = os.path.join(img_dir,'*g')
+        files = glob.glob(data_path)
+        for current_file in files:
+            for index, row in labels_dataframe.iterrows():
+                if get_file_name(current_file) == row['File Name']:
+                    labels.append(row['Features'])
+            img = cv2.imread(current_file)
+            data.append(img)
+
+    # DO THIS:
+    # x_train = data.reshape(-1, 28, 28, 1).astype('float32') / 255.
+    # x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
+
+    assert len(labels) == len(data)), "Length of the training set does not match length of the labels!"
+    # RETURN HERE
 
 if __name__ == "__main__":
     import os
@@ -254,6 +288,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Capsule Network on MNIST.")
     parser.add_argument('--epochs', default=50, type=int)
     parser.add_argument('--batch_size', default=100, type=int)
+    parser.add_argument('--dataset', default=dataset_path, type=str, help="Relative path to the custom dataset to use")
     parser.add_argument('--lr', default=0.001, type=float,
                         help="Initial learning rate")
     parser.add_argument('--lr_decay', default=0.9, type=float,
