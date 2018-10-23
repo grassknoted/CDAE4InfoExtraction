@@ -19,7 +19,7 @@ Author: Xifeng Guo, E-mail: `guoxifeng1990@163.com`, Github: `https://github.com
 import numpy as np
 import tensorflow as tf
 from keras.layers import Lambda
-from keras import layers, models, optimizers
+from keras import layers, models, optimizers, losses
 from keras import backend as K
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
@@ -120,14 +120,17 @@ def total_loss(y_true, y_pred):
      
     # L is of dimension(?,10)  
     L = y_true * K.square(K.maximum(0., 0.9 - y_pred)) + 0.5 * (1 - y_true) * K.square(K.maximum(0., y_pred - 0.1))
-    # kl_loss is of dimension (?,10,16). Be careful when you add the two
+    '''
+    # kl_loss is of dimension (?,10,16). Be careful when you add the two. This simplification of KLD is for Gaussian only
     kl_loss = tf.convert_to_tensor(log_variance, dtype=tf.float32) + tf.convert_to_tensor(log_variance, dtype=tf.float32) - tf.cast(K.square(tf.convert_to_tensor(mean, dtype=tf.float32)), tf.float32) - tf.cast(K.exp(tf.convert_to_tensor(log_variance, dtype=tf.float32)), tf.float32)
     kl_loss = K.sum(kl_loss, axis=-1)
     kl_loss *= -0.5
 
     L+= kl_loss
-
     return tf.convert_to_tensor(K.mean(K.sum(L, axis=1)), dtype=tf.float32)
+    '''
+    kl_loss = tf.convert_to_tensor(losses.kullback_leibler_divergence(y_true, y_pred))
+    return tf.convert_to_tensor(K.mean(K.sum(L,1)+kl_loss))
 
 
 def train(model, data, args):
