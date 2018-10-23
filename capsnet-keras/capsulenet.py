@@ -23,11 +23,8 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 import tensorflow as tf
-<<<<<<< HEAD
 from keras.layers import Lambda
 from keras import layers, models, optimizers, losses
-=======
->>>>>>> 5b79e2d26cc1ee54b3e2f5549df8c45c6ebb453e
 from keras import backend as K
 from keras.layers import Lambda
 import matplotlib.pyplot as plt
@@ -130,6 +127,8 @@ def total_loss(y_true, y_pred):
     # y_pred = tf.convert_to_tensor(y_pred, dtype=tf.float32) 
      
     # L is of dimension(?,10)  
+
+    # Changes made here to fix the KLD Loss term error
     L = y_true * K.square(K.maximum(0., 0.9 - y_pred)) + 0.5 * (1 - y_true) * K.square(K.maximum(0., y_pred - 0.1))
     '''
     # kl_loss is of dimension (?,10,16). Be careful when you add the two. This simplification of KLD is for Gaussian only
