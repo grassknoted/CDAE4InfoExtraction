@@ -282,7 +282,7 @@ def load_dataset(dataset_path):
     # x_train = data.reshape(-1, 28, 28, 1).astype('float32') / 255.
     # x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
 
-    assert len(labels) == len(data)), "Length of the training set does not match length of the labels!"
+    assert (len(labels) == len(data)), "Length of the training set does not match length of the labels!"
     # RETURN HERE
 
 if __name__ == "__main__":
