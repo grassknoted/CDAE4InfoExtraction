@@ -37,6 +37,7 @@ K.set_image_data_format('channels_last')
 mean = -1          # Dummy Values
 log_variance = -1  # Dummy Values
 
+# Change this dataset
 dataset_path = "../Dataset/"
 
 def CapsNet(input_shape, n_class, routings):
