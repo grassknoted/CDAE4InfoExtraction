@@ -257,6 +257,12 @@ def load_mnist():
     y_test = to_categorical(y_test.astype('float32'))
     return (x_train, y_train), (x_test, y_test)
 
+def load_custom_dataset():
+	'''
+	Change the dataset values here
+	'''
+	# Function to use our own dataset
+
 def get_file_name(path):
     head, tail = ntpath.split(path)
     return str(tail) or str(ntpath.basename(head))
