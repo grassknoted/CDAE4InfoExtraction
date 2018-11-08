@@ -94,10 +94,6 @@ reported by 3 trials. The results can be reproduced by launching the following c
    CapsNet-v2  |  1 | yes | 0.36 (0.009)| *0.29 (0.011)*
    CapsNet-v3 |  3 | no | 0.40 (0.016)  | *0.35 (0.036)*
    CapsNet-v4  |  3 | yes| 0.34 (0.016) | *0.25 (0.005)*
-   
-Losses and accuracies:   
-![](result/log.png)
-
 
 #### Training Speed 
 
