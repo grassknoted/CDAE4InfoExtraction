@@ -257,15 +257,38 @@ def load_mnist():
     y_test = to_categorical(y_test.astype('float32'))
     return (x_train, y_train), (x_test, y_test)
 
-def load_custom_dataset():
-	'''
-	Change the dataset values here
-	'''
-	# Function to use our own dataset
-
 def get_file_name(path):
     head, tail = ntpath.split(path)
     return str(tail) or str(ntpath.basename(head))
+
+def load_custom_dataset(dataset_path):
+	'''
+	Function to use custom dataset
+	'''
+    x_train = []
+    x_test = []
+    y_train = []
+    y_test = []
+
+    classes = ['cats', 'dogs', 'fox', 'hyenas', 'wolves']
+
+    y_train = pd.read_csv(dataset_path+'animals.csv')
+
+    for class_name in classes:
+        img_dir = dataset_path+str(class_name)+'/'
+        data_path = os.path.join(img_dir,'*g')
+        files = glob.glob(data_path)
+        for current_file in files:
+            for index, row in y_train_dataframe.iterrows():
+                if get_file_name(current_file) == row['File Name']:
+                    y_train.append(row['Features'])
+            img = cv2.imread(current_file)
+            x_train.append(img)
+
+    x_train = x_train.reshape(-1, 28, 28, 1).astype('float32') / 255.
+    y_train = to_categorical(y_train.astype('float32'))
+
+    print("CUSTOM DATASET:",x_train, y_train)
 
 def load_dataset(dataset_path):
     classes = ['cats', 'dogs', 'fox']
@@ -327,6 +350,9 @@ if __name__ == "__main__":
 
     if not os.path.exists(args.save_dir):
         os.makedirs(args.save_dir)
+
+    # Testing custom data reader
+    load_custom_dataset(args.dataset_path)
 
     # load data
     (x_train, y_train), (x_test, y_test) = load_mnist()
