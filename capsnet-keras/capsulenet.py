@@ -255,6 +255,7 @@ def load_mnist():
     x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
     y_train = to_categorical(y_train.astype('float32'))
     y_test = to_categorical(y_test.astype('float32'))
+    print("MINST:", type(x_train))
     return (x_train, y_train), (x_test, y_test)
 
 def get_file_name(path):
@@ -262,9 +263,10 @@ def get_file_name(path):
     return str(tail) or str(ntpath.basename(head))
 
 def load_custom_dataset(dataset_path):
-	'''
-	Function to use custom dataset
-	'''
+    '''
+    Function to use custom dataset
+    '''
+    
     x_train = []
     x_test = []
     y_train = []
@@ -272,7 +274,7 @@ def load_custom_dataset(dataset_path):
 
     classes = ['cats', 'dogs', 'fox', 'hyenas', 'wolves']
 
-    y_train = pd.read_csv(dataset_path+'animals.csv')
+    y_train_dataframe = pd.read_csv(dataset_path+'animals.csv')
 
     for class_name in classes:
         img_dir = dataset_path+str(class_name)+'/'
@@ -285,6 +287,7 @@ def load_custom_dataset(dataset_path):
             img = cv2.imread(current_file)
             x_train.append(img)
 
+    x_train = np.array(x_train)
     x_train = x_train.reshape(-1, 28, 28, 1).astype('float32') / 255.
     y_train = to_categorical(y_train.astype('float32'))
 
@@ -351,11 +354,11 @@ if __name__ == "__main__":
     if not os.path.exists(args.save_dir):
         os.makedirs(args.save_dir)
 
-    # Testing custom data reader
-    load_custom_dataset(args.dataset_path)
-
     # load data
     (x_train, y_train), (x_test, y_test) = load_mnist()
+
+    # Testing custom data reader
+    load_custom_dataset(args.dataset)
 
     # define model
     model, eval_model, manipulate_model = CapsNet(input_shape=x_train.shape[1:],
