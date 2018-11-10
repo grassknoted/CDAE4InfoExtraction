@@ -250,7 +250,7 @@ def load_mnist():
     # the data, shuffled and split between train and test sets
     from keras.datasets import mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
-
+    print("X Train:", x_train)
     x_train = x_train.reshape(-1, 28, 28, 1).astype('float32') / 255.
     x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
     y_train = to_categorical(y_train.astype('float32'))
@@ -285,6 +285,7 @@ def load_custom_dataset(dataset_path):
                 if get_file_name(current_file) == row['File Name']:
                     y_train.append(row['Features'])
             img = cv2.imread(current_file)
+            img = cv2.resize(img, (28, 28))
             x_train.append(img)
 
     x_train = np.array(x_train)
