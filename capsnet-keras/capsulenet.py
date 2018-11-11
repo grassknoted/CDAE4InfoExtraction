@@ -19,6 +19,7 @@ import os
 import cv2
 import glob
 import ntpath
+import random
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -255,7 +256,6 @@ def load_mnist():
     x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
     y_train = to_categorical(y_train.astype('float32'))
     y_test = to_categorical(y_test.astype('float32'))
-    print("MINST:", type(x_train))
     return (x_train, y_train), (x_test, y_test)
 
 def get_file_name(path):
@@ -273,51 +273,53 @@ def load_custom_dataset(dataset_path):
     y_test = []
 
     classes = ['cats', 'dogs', 'fox', 'hyenas', 'wolves']
+    class_dict = {'cats':1, 'dogs':2, 'fox':3, 'hyenas':4, 'wolves':5}
 
     y_train_dataframe = pd.read_csv(dataset_path+'animals.csv')
 
+    append_count = 0
     for class_name in classes:
         img_dir = dataset_path+str(class_name)+'/'
         data_path = os.path.join(img_dir,'*g')
         files = glob.glob(data_path)
         for current_file in files:
-            for index, row in y_train_dataframe.iterrows():
-                if get_file_name(current_file) == row['File Name']:
-                    y_train.append(row['Features'])
-            img = cv2.imread(current_file)
-            img = cv2.resize(img, (28, 28))
-            x_train.append(img)
+            random_number = random.randint(1,10)
+
+            if(random_number == 7):
+                img = cv2.imread(current_file)
+                print(current_file)
+                img = cv2.resize(img, (28, 28))
+                x_test.append(img)
+                y_test.append(class_dict[class_name])
+
+            # for index, row in y_train_dataframe.iterrows():
+            #     if get_file_name(current_file) == row['File Name']:
+            #         y_train.append(row['Features'])
+            else:
+                img = cv2.imread(current_file)
+                print(current_file)
+                img = cv2.resize(img, (28, 28))
+                x_train.append(img)
+                append_count += 1
+                y_train.append(class_dict[class_name])
 
     x_train = np.array(x_train)
+    y_train = np.array(y_train)
     x_train = x_train.reshape(-1, 28, 28, 1).astype('float32') / 255.
     y_train = to_categorical(y_train.astype('float32'))
 
-    print("CUSTOM DATASET:",x_train, y_train)
+    x_test = np.array(x_test)
+    y_test = np.array(y_test)
+    x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
+    y_test = to_categorical(y_test.astype('float32'))
 
-def load_dataset(dataset_path):
-    classes = ['cats', 'dogs', 'fox']
+    print("Append count:", append_count)
 
-    labels_dataframe = pd.read_csv(dataset_path+'labels.csv')
-    
-    data = []
-    labels = []
-    for class_name in classes:
-        img_dir = dataset_path+str(class_name)+'/'
-        data_path = os.path.join(img_dir,'*g')
-        files = glob.glob(data_path)
-        for current_file in files:
-            for index, row in labels_dataframe.iterrows():
-                if get_file_name(current_file) == row['File Name']:
-                    labels.append(row['Features'])
-            img = cv2.imread(current_file)
-            data.append(img)
+    print("Length of training set:", len(x_train), "labels:", len(y_train))
+    print("Length of training set:", len(x_test), "labels:", len(y_test))
 
-    # DO THIS:
-    # x_train = data.reshape(-1, 28, 28, 1).astype('float32') / 255.
-    # x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
-
-    assert (len(labels) == len(data)), "Length of the training set does not match length of the labels!"
     # RETURN HERE
+    return (x_train, y_train), (x_test, y_test)
 
 if __name__ == "__main__":
     import os
@@ -356,10 +358,10 @@ if __name__ == "__main__":
         os.makedirs(args.save_dir)
 
     # load data
-    (x_train, y_train), (x_test, y_test) = load_mnist()
+    # (x_train, y_train), (x_test, y_test) = load_mnist()
 
     # Testing custom data reader
-    load_custom_dataset(args.dataset)
+    (x_train, y_train), (x_test, y_test) = load_custom_dataset(args.dataset)
 
     # define model
     model, eval_model, manipulate_model = CapsNet(input_shape=x_train.shape[1:],
