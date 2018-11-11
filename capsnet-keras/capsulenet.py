@@ -273,7 +273,7 @@ def load_custom_dataset(dataset_path):
     y_test = []
 
     classes = ['cats', 'dogs', 'fox', 'hyenas', 'wolves']
-    class_dict = {'cats':1, 'dogs':2, 'fox':3, 'hyenas':4, 'wolves':5}
+    class_dict = {'cats':0, 'dogs':1, 'fox':2, 'hyenas':3, 'wolves':4}
 
     y_train_dataframe = pd.read_csv(dataset_path+'animals.csv')
 
