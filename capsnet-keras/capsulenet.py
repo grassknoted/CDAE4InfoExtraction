@@ -39,7 +39,7 @@ mean = -1          # Dummy Values
 log_variance = -1  # Dummy Values
 
 # Change this dataset
-dataset_path = "../Dataset/"
+dataset_path = "../Dataset/Animals/"
 
 def CapsNet(input_shape, n_class, routings):
     """
@@ -311,8 +311,6 @@ def load_custom_dataset(dataset_path):
     y_test = np.array(y_test)
     x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
     y_test = to_categorical(y_test.astype('float32'))
-
-    print("Append count:", append_count)
 
     print("Length of training set:", len(x_train), "labels:", len(y_train))
     print("Length of training set:", len(x_test), "labels:", len(y_test))
