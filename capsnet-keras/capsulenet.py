@@ -288,6 +288,7 @@ def load_custom_dataset(dataset_path):
 
             if(random_number == 7):
                 img = cv2.imread(current_file)
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                 img = cv2.resize(img, (28, 28))
                 x_test.append(img)
                 y_test.append(class_dict[class_name])
@@ -297,6 +298,7 @@ def load_custom_dataset(dataset_path):
             #         y_train.append(row['Features'])
             else:
                 img = cv2.imread(current_file)
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                 img = cv2.resize(img, (28, 28))
                 x_train.append(img)
                 append_count += 1
