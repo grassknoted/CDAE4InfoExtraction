@@ -279,6 +279,7 @@ def load_custom_dataset(dataset_path):
 
     append_count = 0
     for class_name in classes:
+        print("Processing class", class_name+"..")
         img_dir = dataset_path+str(class_name)+'/'
         data_path = os.path.join(img_dir,'*g')
         files = glob.glob(data_path)
@@ -287,7 +288,6 @@ def load_custom_dataset(dataset_path):
 
             if(random_number == 7):
                 img = cv2.imread(current_file)
-                print(current_file)
                 img = cv2.resize(img, (28, 28))
                 x_test.append(img)
                 y_test.append(class_dict[class_name])
@@ -297,7 +297,6 @@ def load_custom_dataset(dataset_path):
             #         y_train.append(row['Features'])
             else:
                 img = cv2.imread(current_file)
-                print(current_file)
                 img = cv2.resize(img, (28, 28))
                 x_train.append(img)
                 append_count += 1
