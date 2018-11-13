@@ -34,6 +34,8 @@ from keras.utils import to_categorical
 from keras import layers, models, optimizers
 from capsulelayers import CapsuleLayer, PrimaryCap, Length, Mask
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 K.set_image_data_format('channels_last')
 mean = -1          # Dummy Values
 log_variance = -1  # Dummy Values
@@ -272,8 +274,8 @@ def load_custom_dataset(dataset_path):
     y_train = []
     y_test = []
 
-    classes = ['cats', 'dogs', 'fox', 'hyenas', 'wolves']
-    class_dict = {'cats':0, 'dogs':1, 'fox':2, 'hyenas':3, 'wolves':4}
+    classes = ['cats', 'dogs', 'foxes', 'hyenas', 'wolves']
+    class_dict = {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4}
 
     y_train_dataframe = pd.read_csv(dataset_path+'animals.csv')
 
