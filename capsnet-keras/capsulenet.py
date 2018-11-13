@@ -314,8 +314,9 @@ def load_custom_dataset(dataset_path):
     x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
     y_test = to_categorical(y_test.astype('float32'))
 
-    print("Length of training set:", len(x_train), "labels:", len(y_train))
-    print("Length of training set:", len(x_test), "labels:", len(y_test))
+    # Uncomment to debug
+    # print("Length of training set:", len(x_train), "labels:", len(y_train))
+    # print("Length of training set:", len(x_test), "labels:", len(y_test))
 
     # RETURN HERE
     return (x_train, y_train), (x_test, y_test)
