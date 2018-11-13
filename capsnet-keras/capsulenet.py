@@ -207,8 +207,9 @@ def train(model, data, args):
 
 
 def test(model, data, args):
+    saved_model = load_weights(save_dir + '/weights-507.h5')
     x_test, y_test = data
-    y_pred, x_recon = model.predict(x_test, batch_size=100)
+    y_pred, x_recon = saved_model.predict(x_test, batch_size=100)
     print('-'*30 + 'Begin: test' + '-'*30)
     print('Test acc:', np.sum(np.argmax(y_pred, 1) == np.argmax(y_test, 1))/y_test.shape[0])
 
