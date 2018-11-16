@@ -50,6 +50,7 @@ default_routing = 3
 number_of_classes = 5
 inverse_class_dict = {0:'Cat', 1:"Dog", 2:"Fox", 3:"Hyena", 4:"Wolves"}
 
+# Need to change this line to stop loading the unnecessary training dataset while testing
 (x_train, y_train), (x_test, y_test) = CAPS.load_custom_dataset(dataset_path)
 
 model, eval_model, manipulate_model = CAPS.CapsNet(input_shape=x_train.shape[1:], n_class=len(np.unique(np.argmax(y_train, 1))), routings=default_routing)
