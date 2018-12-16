@@ -102,6 +102,7 @@ def CapsNet(input_shape, n_class, routings):
 
     longest_vector_train = masked_by_y
     longest_vector_eval = masked
+    
     # Keep adding hierarchies
     # Face hierarchy
     face = layers.Dense(units=5,name='face')
@@ -149,7 +150,7 @@ def CapsNet(input_shape, n_class, routings):
     white_train = white(colour_train)
     white_eval = white(colour_eval)
 
-    # Now, build the model
+    # Now, build both the models
     hierarchy_train_model = models.Model([x, y], [out_caps,face_train,eyes_train,mouth_open_train,snout_train,ears_train,whiskers_train,body_train,paws_train,tail_train,colour_train,brown_train,black_train,grey_train,white_train])
     hierarchy_eval_model = models.Model(x, [out_caps,face_eval,eyes_eval,mouth_open_eval,snout_eval,ears_eval,whiskers_eval,body_eval,paws_eval,tail_eval,colour_eval,brown_eval,black_eval,grey_eval,white_eval])
     #------------------------------------------------------------------------------------------------------------------------------
@@ -226,22 +227,22 @@ def train(model, data, args):
                                            save_best_only=True, save_weights_only=True, verbose=1)
     lr_decay = callbacks.LearningRateScheduler(schedule=lambda epoch: args.lr * (args.lr_decay ** epoch))
 
-    # compile the model
+    # Compile the model
     model.compile(optimizer=optimizers.Adam(lr=args.lr),
                   loss=[total_loss, 'mse'],
                   loss_weights=[1., args.lam_recon],
                   metrics={'capsnet': 'accuracy'})
 
     
-    # Training without data augmentation:
+    # Training without data augmentation (preferred) :
 
     model.fit([x_train, y_train], [y_train, x_train],
      batch_size=args.batch_size, 
      epochs=args.epochs,
      validation_data=[[x_test, y_test], [y_test, x_test]], 
      callbacks=[log, tb, checkpoint, lr_decay])
+    
     """
-
     # Begin: Training with data augmentation ---------------------------------------------------------------------#
     def train_generator(x, y, batch_size, shift_fraction=0.):
         train_datagen = ImageDataGenerator(width_shift_range=shift_fraction,
@@ -419,13 +420,10 @@ if __name__ == "__main__":
     if not os.path.exists(args.save_dir):
         os.makedirs(args.save_dir)
 
-    # load data
-    # (x_train, y_train), (x_test, y_test) = load_mnist()
-
-    # Testing custom data reader
+    # Load data
     (x_train, y_train), (x_test, y_test) = load_custom_dataset(args.dataset)
 
-    # define model
+    # Define model
     model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CapsNet(input_shape=x_train.shape[1:],
                                                   n_class=len(np.unique(np.argmax(y_train, 1))),
                                                   routings=args.routings)
