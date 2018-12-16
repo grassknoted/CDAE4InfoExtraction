@@ -99,7 +99,7 @@ def CapsNet(input_shape, n_class, routings):
     y = layers.Input(shape=(n_class,))
     masked_by_y = Mask()([z, y])  # The true label is used to mask the output of capsule layer. For training
     masked = Mask()(z)  # Mask using the capsule with maximal length. For prediction
-    
+
     longest_vector_train = masked_by_y
     longest_vector_eval = masked
     # Keep adding hierarchies
@@ -436,9 +436,11 @@ if __name__ == "__main__":
     if args.weights is not None:  # init the model weights with provided one
         model.load_weights(args.weights)
     if not args.testing:
+        # Send hierarchy_train_model along with changes in data format
         train(model=model, data=((x_train, y_train), (x_test, y_test)), args=args)
     else:  # as long as weights are given, will run testing
         if args.weights is None:
             print('No weights are provided. Will test using random initialized weights.')
         manipulate_latent(manipulate_model, (x_test, y_test), args)
+        # Send hierarchy_eval_model along with changes in data format
         test(model=eval_model, data=(x_test, y_test), args=args)
