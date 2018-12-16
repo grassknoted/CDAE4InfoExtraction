@@ -99,17 +99,7 @@ def CapsNet(input_shape, n_class, routings):
     y = layers.Input(shape=(n_class,))
     masked_by_y = Mask()([z, y])  # The true label is used to mask the output of capsule layer. For training
     masked = Mask()(z)  # Mask using the capsule with maximal length. For prediction
-
-    '''
-    def longest_vector_retrieve(args):
-    	z, out_caps = args
-    	only_length_vector = tf.transpose(tf.nn.embedding_lookup(tf.transpose(out_caps),[1]))
-    	only_length_vector = tf.reshape(only_length_vector,[-1])
-    	longest_vector_index = tf.argmax(only_length_vector, axis=-1)
-    	print(longest_vector_index)
-    	return tf.gather_nd(z,[longest_vector_index])
-    longest_vector = Lambda(longest_vector_retrieve,name = 'longest_vector')([z,out_caps])
-    '''
+    
     longest_vector_train = masked_by_y
     longest_vector_eval = masked
     # Keep adding hierarchies
