@@ -94,6 +94,76 @@ def CapsNet(input_shape, n_class, routings):
     # If using tensorflow, this will not be necessary. :)
     out_caps = Length(name='capsnet')(z)
 
+    # Hierarchy output section
+    #------------------------------------------------------------------------------------------------------------------------------
+    y = layers.Input(shape=(n_class,))
+    masked_by_y = Mask()([z, y])  # The true label is used to mask the output of capsule layer. For training
+    masked = Mask()(z)  # Mask using the capsule with maximal length. For prediction
+
+    '''
+    def longest_vector_retrieve(args):
+    	z, out_caps = args
+    	only_length_vector = tf.transpose(tf.nn.embedding_lookup(tf.transpose(out_caps),[1]))
+    	only_length_vector = tf.reshape(only_length_vector,[-1])
+    	longest_vector_index = tf.argmax(only_length_vector, axis=-1)
+    	print(longest_vector_index)
+    	return tf.gather_nd(z,[longest_vector_index])
+    longest_vector = Lambda(longest_vector_retrieve,name = 'longest_vector')([z,out_caps])
+    '''
+    longest_vector_train = masked_by_y
+    longest_vector_eval = masked
+    # Keep adding hierarchies
+    # Face hierarchy
+    face = layers.Dense(units=5,name='face')
+    face_train = face(longest_vector_train)
+    face_eval = face(longest_vector_eval)
+    eyes = layers.Dense(units=1,name='eyes')
+    eyes_train = eyes(face_train)
+    eyes_eval = eyes(face_eval)
+    mouth_open = layers.Dense(units=1,name='mouth_open')
+    mouth_open_train = mouth_open(face_train)
+    mouth_open_eval = mouth_open(face_eval)
+    snout = layers.Dense(units=1,name='snout')
+    snout_train = snout(face_train)
+    snout_eval = snout(face_eval)
+    ears = layers.Dense(units=1,name='ears')
+    ears_train = ears(face_train)
+    ears_eval = ears(face_eval)
+    whiskers = layers.Dense(units=1,name='whiskers')
+    whiskers_train = whiskers(face_train)
+    whiskers_eval = whiskers(face_eval)
+    # Body hierarchy
+    body = layers.Dense(units=2,name='body')
+    body_train = body(longest_vector_train)
+    body_eval = body(longest_vector_eval)
+    paws = layers.Dense(units=1,name='paws')
+    paws_train = paws(body_train)
+    paws_eval = paws(body_eval)
+    tail = layers.Dense(units=1,name='tail')
+    tail_train = tail(body_train)
+    tail_eval = tail(body_eval)
+    # Colour hierarchy
+    colour = layers.Dense(units=4,name='colour')
+    colour_train = colour(longest_vector_train)
+    colour_eval = colour(longest_vector_eval)
+    brown = layers.Dense(units=1,name='brown')
+    brown_train = brown(colour_train)
+    brown_eval = brown(colour_eval)
+    black = layers.Dense(units=1,name='black')
+    black_train = black(colour_train)
+    black_eval = black(colour_eval)
+    grey = layers.Dense(units=1,name='grey')
+    grey_train = grey(colour_train)
+    grey_eval = grey(colour_eval)
+    white = layers.Dense(units=1,name='white')
+    white_train = white(colour_train)
+    white_eval = white(colour_eval)
+
+    # Now, build the model
+    hierarchy_train_model = models.Model([x, y], [out_caps,face_train,eyes_train,mouth_open_train,snout_train,ears_train,whiskers_train,body_train,paws_train,tail_train,colour_train,brown_train,black_train,grey_train,white_train])
+    hierarchy_eval_model = models.Model(x, [out_caps,face_eval,eyes_eval,mouth_open_eval,snout_eval,ears_eval,whiskers_eval,body_eval,paws_eval,tail_eval,colour_eval,brown_eval,black_eval,grey_eval,white_eval])
+    #------------------------------------------------------------------------------------------------------------------------------
+
     # Decoder network.
     y = layers.Input(shape=(n_class,))
     masked_by_y = Mask()([z, y])  # The true label is used to mask the output of capsule layer. For training
@@ -115,7 +185,7 @@ def CapsNet(input_shape, n_class, routings):
     noised_digitcaps = layers.Add()([z, noise])
     masked_noised_y = Mask()([noised_digitcaps, y])
     manipulate_model = models.Model([x, y, noise], decoder(masked_noised_y))
-    return train_model, eval_model, manipulate_model
+    return train_model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model
 
 
 def total_loss(y_true, y_pred):
@@ -366,11 +436,12 @@ if __name__ == "__main__":
     (x_train, y_train), (x_test, y_test) = load_custom_dataset(args.dataset)
 
     # define model
-    model, eval_model, manipulate_model = CapsNet(input_shape=x_train.shape[1:],
+    model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CapsNet(input_shape=x_train.shape[1:],
                                                   n_class=len(np.unique(np.argmax(y_train, 1))),
                                                   routings=args.routings)
     model.summary()
-
+    hierarchy_train_model.summary()
+    hierarchy_eval_model.summary()
     # train or test
     if args.weights is not None:  # init the model weights with provided one
         model.load_weights(args.weights)
