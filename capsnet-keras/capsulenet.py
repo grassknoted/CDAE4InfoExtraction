@@ -377,19 +377,16 @@ def load_custom_dataset(dataset_path):
     y_train_output = []
     y_test_output = []
 
-    classes = ['cats', 'dogs', 'foxes', 'hyenas', 'wolves','ducks','eagles','hawks','parrots','sparrows','chair','sofa','table']
-    class_dict = {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4, 'ducks':5, 'eagles':6, 'hawks':7, 'parrots':8, 'sparrows':9, 'chair':10, 'sofa':11, 'table':12}
+    classes = {'animals':['cats', 'dogs', 'foxes', 'hyenas', 'wolves'],'birds':['ducks','eagles','hawks','parrots','sparrows'],'furniture':['chair','sofa','table']}
+    class_encodings = {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4, 'ducks':5, 'eagles':6, 'hawks':7, 'parrots':8, 'sparrows':9, 'chair':10, 'sofa':11, 'table':12}
 
-    
-    y_train_animals = pd.read_csv(dataset_path+'animals.csv')
-    dataset_path = "../Dataset/Furniture/"
-    y_train_furniture = pd.read_csv(dataset_path+'furniture.csv')
-    dataset_path = "../Dataset/Birds/"
-    y_test_birds = pd.read_csv(dataset_path+'birds.csv')
+    for class_ in classes:
+        dataset_path = "../Dataset/"+class_[0].upper()+class_[1:]+'/'
+        y_train_dataframe = pd.read_csv(dataset_path+class_+'.csv')
+        for sub_class in classes[class_]:
+            print("Processing class", sub_class+"..")
 
-    append_count = 0
-    for class_name in classes:
-        print("Processing class", class_name+"..")
+    # -------- Volatile (under processing) ------------------------- BEGIN
         img_dir = dataset_path+str(class_name)+'/'
         data_path = os.path.join(img_dir,'*g')
         files = glob.glob(data_path)
@@ -401,7 +398,7 @@ def load_custom_dataset(dataset_path):
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                 img = cv2.resize(img, (28, 28))
                 x_test.append(img)
-                y_test.append(class_dict[class_name])
+                y_test.append(class_encodings[class_name])
 
             # for index, row in y_train_dataframe.iterrows():
             #     if get_file_name(current_file) == row['File Name']:
@@ -411,8 +408,7 @@ def load_custom_dataset(dataset_path):
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                 img = cv2.resize(img, (28, 28))
                 x_train.append(img)
-                append_count += 1
-                y_train.append(class_dict[class_name])
+                y_train.append(class_encodings[class_name])
 
     x_train = np.array(x_train)
     y_train = np.array(y_train)
@@ -424,6 +420,8 @@ def load_custom_dataset(dataset_path):
     x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
     y_test = to_categorical(y_test.astype('float32'))
 
+    # -------- Volatile (under processing) ------------------------- END
+    
     # Uncomment to debug
     # print("Length of training set:", len(x_train), "labels:", len(y_train))
     # print("Length of training set:", len(x_test), "labels:", len(y_test))
