@@ -284,13 +284,18 @@ def train(model, data, args):
 
     
     # Training without data augmentation (preferred) :
+    y_train_list=[]
+    y_train_list[0] = y_train
+    for output in y_train_output:
+        y_train_list.append(output)
 
-    model.fit([x_train, y_train], [y_train, y_train_output],
+    model.fit([x_train, y_train], y_train_list,
      batch_size=args.batch_size, 
      epochs=args.epochs,
      validation_data=[[x_test, y_test], [y_test, y_test_output]], 
      callbacks=[log, tb, checkpoint, lr_decay])
     
+    '''
     # Begin: Training with data augmentation ---------------------------------------------------------------------#
     def train_generator(x, y, batch_size, shift_fraction=0.):
         train_datagen = ImageDataGenerator(width_shift_range=shift_fraction,
@@ -307,6 +312,8 @@ def train(model, data, args):
                         validation_data=[[x_test, y_test], [y_test, y_test_output]],
                         callbacks=[log, tb, checkpoint, lr_decay])
     # End: Training with data augmentation -----------------------------------------------------------------------#
+    '''
+
     model.save_weights(args.save_dir + '/trained_model.h5')
     print('Trained model saved to \'%s/trained_model.h5\'' % args.save_dir)
 
@@ -323,6 +330,7 @@ def test(model, data, args):
     print('Test acc:', np.sum(np.argmax(y_pred, 1) == np.argmax(y_test, 1))/y_test.shape[0])
 
     # Test accuracy for the predicted output words
+    # To be done
 
 
 def manipulate_latent(model, data, args):
@@ -365,11 +373,19 @@ def get_file_name(path):
     head, tail = ntpath.split(path)
     return str(tail) or str(ntpath.basename(head))
 
+def build_output(features):
+    # Builds the output according to the output format in the hierarchy_( train | eval )_model
+    output = []
+    # -------- Volatile (under processing) ------------------------- <BEGIN>
+
+
+    output = np.array(output)
+    # -------- Volatile (under processing) ------------------------- <END>
+    return output
+
 def load_custom_dataset(dataset_path):
-    '''
-    Function to use custom dataset
-    '''
-    
+
+    # Function to use custom dataset
     x_train = []
     x_test = []
     y_train = []
@@ -385,48 +401,51 @@ def load_custom_dataset(dataset_path):
         y_train_dataframe = pd.read_csv(dataset_path+class_+'.csv')
         for sub_class in classes[class_]:
             print("Processing class", sub_class+"..")
+            img_dir = dataset_path+str(sub_class)+'/'
+            data_path = os.path.join(img_dir,'*g')
+            files = glob.glob(data_path)
 
-    # -------- Volatile (under processing) ------------------------- BEGIN
-        img_dir = dataset_path+str(class_name)+'/'
-        data_path = os.path.join(img_dir,'*g')
-        files = glob.glob(data_path)
-        for current_file in files:
-            random_number = random.randint(1,10)
+            for current_file in files:
+                random_number = random.randint(1,10)
 
-            if(random_number == 7):
-                img = cv2.imread(current_file)
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                img = cv2.resize(img, (28, 28))
-                x_test.append(img)
-                y_test.append(class_encodings[class_name])
+                if(random_number == 7):
+                    img = cv2.imread(current_file)
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                    img = cv2.resize(img, (28, 28))
+                    x_test.append(img)
+                    y_test.append(class_encodings[class_name])
+                    # y_test_output logic
+                    for index, row in y_train_dataframe.iterrows():
+                        if get_file_name(current_file) == row['File Name']:
+                            y_test_features = row['Features']
+                            y_test_output.append(build_output(y_test_features))
+                            break
+                else:
+                    img = cv2.imread(current_file)
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                    img = cv2.resize(img, (28, 28))
+                    x_train.append(img)
+                    y_train.append(class_encodings[class_name])
+                    # y_train_output logic
+                    for index, row in y_train_dataframe.iterrows():
+                        if get_file_name(current_file) == row['File Name']:
+                            y_train_features = row['Features']
+                            y_train_output.append(build_output(y_train_features))
+                            break
 
-            # for index, row in y_train_dataframe.iterrows():
-            #     if get_file_name(current_file) == row['File Name']:
-            #         y_train.append(row['Features'])
-            else:
-                img = cv2.imread(current_file)
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                img = cv2.resize(img, (28, 28))
-                x_train.append(img)
-                y_train.append(class_encodings[class_name])
 
     x_train = np.array(x_train)
     y_train = np.array(y_train)
+    y_train_output = np.array(y_train_output)
     x_train = x_train.reshape(-1, 28, 28, 1).astype('float32') / 255.
     y_train = to_categorical(y_train.astype('float32'))
 
     x_test = np.array(x_test)
     y_test = np.array(y_test)
+    y_test_output = np.array(y_test_output)
     x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
     y_test = to_categorical(y_test.astype('float32'))
-
-    # -------- Volatile (under processing) ------------------------- END
     
-    # Uncomment to debug
-    # print("Length of training set:", len(x_train), "labels:", len(y_train))
-    # print("Length of training set:", len(x_test), "labels:", len(y_test))
-
-    # RETURN HERE
     return (x_train, y_train, y_train_output), (x_test, y_test, y_test_output)
 
 if __name__ == "__main__":
@@ -484,6 +503,6 @@ if __name__ == "__main__":
     else:  # as long as weights are given, will run testing
         if args.weights is None:
             print('No weights are provided. Will test using random initialized weights.')
-        manipulate_latent(manipulate_model, (x_test, y_test), args)
+        # manipulate_latent(manipulate_model, (x_test, y_test), args)
         # Send hierarchy_eval_model along with changes in data format
         test(model=hierarchy_eval_model, data=(x_test, y_test, y_test_output), args=args)
