@@ -377,10 +377,15 @@ def load_custom_dataset(dataset_path):
     y_train_output = []
     y_test_output = []
 
-    classes = ['cats', 'dogs', 'foxes', 'hyenas', 'wolves']
-    class_dict = {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4}
+    classes = ['cats', 'dogs', 'foxes', 'hyenas', 'wolves','ducks','eagles','hawks','parrots','sparrows','chair','sofa','table']
+    class_dict = {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4, 'ducks':5, 'eagles':6, 'hawks':7, 'parrots':8, 'sparrows':9, 'chair':10, 'sofa':11, 'table':12}
 
-    y_train_dataframe = pd.read_csv(dataset_path+'animals.csv')
+    
+    y_train_animals = pd.read_csv(dataset_path+'animals.csv')
+    dataset_path = "../Dataset/Furniture/"
+    y_train_furniture = pd.read_csv(dataset_path+'furniture.csv')
+    dataset_path = "../Dataset/Birds/"
+    y_test_birds = pd.read_csv(dataset_path+'birds.csv')
 
     append_count = 0
     for class_name in classes:
