@@ -265,7 +265,8 @@ def train(model, data, args):
     :return: The trained model
     """
     # unpacking the data
-    (x_train, y_train), (x_test, y_test) = data
+    # y_train_output and y_test_output are the list of words
+    (x_train, y_train, y_train_output), (x_test, y_test, y_test_output) = data
 
     # callbacks
     log = callbacks.CSVLogger(args.save_dir + '/log.csv')
@@ -284,13 +285,12 @@ def train(model, data, args):
     
     # Training without data augmentation (preferred) :
 
-    model.fit([x_train, y_train], [y_train, x_train],
+    model.fit([x_train, y_train], [y_train, y_train_output],
      batch_size=args.batch_size, 
      epochs=args.epochs,
-     validation_data=[[x_test, y_test], [y_test, x_test]], 
+     validation_data=[[x_test, y_test], [y_test, y_test_output]], 
      callbacks=[log, tb, checkpoint, lr_decay])
     
-    """
     # Begin: Training with data augmentation ---------------------------------------------------------------------#
     def train_generator(x, y, batch_size, shift_fraction=0.):
         train_datagen = ImageDataGenerator(width_shift_range=shift_fraction,
@@ -304,10 +304,9 @@ def train(model, data, args):
     model.fit_generator(generator=train_generator(x_train, y_train, args.batch_size, args.shift_fraction),
                         steps_per_epoch=int(y_train.shape[0] / args.batch_size),
                         epochs=args.epochs,
-                        validation_data=[[x_test, y_test], [y_test, x_test]],
+                        validation_data=[[x_test, y_test], [y_test, y_test_output]],
                         callbacks=[log, tb, checkpoint, lr_decay])
     # End: Training with data augmentation -----------------------------------------------------------------------#
-	"""
     model.save_weights(args.save_dir + '/trained_model.h5')
     print('Trained model saved to \'%s/trained_model.h5\'' % args.save_dir)
 
@@ -318,19 +317,12 @@ def train(model, data, args):
 
 
 def test(model, data, args):
-    x_test, y_test = data
-    y_pred, x_recon = model.predict(x_test, batch_size=100)
+    x_test, y_test, y_test_output = data
+    y_pred, y_test_output_pred = model.predict(x_test, batch_size=100)
     print('-'*30 + 'Begin: test' + '-'*30)
     print('Test acc:', np.sum(np.argmax(y_pred, 1) == np.argmax(y_test, 1))/y_test.shape[0])
 
-    img = combine_images(np.concatenate([x_test[:50],x_recon[:50]]))
-    image = img * 255
-    Image.fromarray(image.astype(np.uint8)).save(args.save_dir + "/real_and_recon.png")
-    print()
-    print('Reconstructed images are saved to %s/real_and_recon.png' % args.save_dir)
-    print('-' * 30 + 'End: test' + '-' * 30)
-    plt.imshow(plt.imread(args.save_dir + "/real_and_recon.png"))
-    plt.show()
+    # Test accuracy for the predicted output words
 
 
 def manipulate_latent(model, data, args):
@@ -382,6 +374,8 @@ def load_custom_dataset(dataset_path):
     x_test = []
     y_train = []
     y_test = []
+    y_train_output = []
+    y_test_output = []
 
     classes = ['cats', 'dogs', 'foxes', 'hyenas', 'wolves']
     class_dict = {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4}
@@ -430,7 +424,7 @@ def load_custom_dataset(dataset_path):
     # print("Length of training set:", len(x_test), "labels:", len(y_test))
 
     # RETURN HERE
-    return (x_train, y_train), (x_test, y_test)
+    return (x_train, y_train, y_train_output), (x_test, y_test, y_test_output)
 
 if __name__ == "__main__":
     import os
@@ -469,7 +463,7 @@ if __name__ == "__main__":
         os.makedirs(args.save_dir)
 
     # Load data
-    (x_train, y_train), (x_test, y_test) = load_custom_dataset(args.dataset)
+    (x_train, y_train, y_train_output), (x_test, y_test, y_test_output) = load_custom_dataset(args.dataset)
 
     # Define model
     model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CapsNet(input_shape=x_train.shape[1:],
@@ -483,10 +477,10 @@ if __name__ == "__main__":
         model.load_weights(args.weights)
     if not args.testing:
         # Send hierarchy_train_model along with changes in data format
-        train(model=model, data=((x_train, y_train), (x_test, y_test)), args=args)
+        train(model=hierarchy_train_model, data=((x_train, y_train, y_train_output), (x_test, y_test, y_test_output)), args=args)
     else:  # as long as weights are given, will run testing
         if args.weights is None:
             print('No weights are provided. Will test using random initialized weights.')
         manipulate_latent(manipulate_model, (x_test, y_test), args)
         # Send hierarchy_eval_model along with changes in data format
-        test(model=eval_model, data=(x_test, y_test), args=args)
+        test(model=hierarchy_eval_model, data=(x_test, y_test, y_test_output), args=args)
