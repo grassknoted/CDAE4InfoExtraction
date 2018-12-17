@@ -104,103 +104,103 @@ def CapsNet(input_shape, n_class, routings):
     # Keep adding hierarchies
 
     # Face hierarchy
-    face = layers.Dense(units=10,name='face')
+    face = layers.Dense(units=9,activation='relu',name='face')
     face_train = face(longest_vector_train)
     face_eval = face(longest_vector_eval)
-    eyes = layers.Dense(units=1,name='eyes')
+    eyes = layers.Dense(units=1,activation='relu',name='eyes')
     eyes_train = eyes(face_train)
     eyes_eval = eyes(face_eval)
-    mouth = layers.Dense(units=1,name='mouth')
+    mouth = layers.Dense(units=1,activation='relu',name='mouth')
     mouth_train = mouth(face_train)
     mouth_eval = mouth(face_eval)
-    snout = layers.Dense(units=1,name='snout')
+    snout = layers.Dense(units=1,activation='relu',name='snout')
     snout_train = snout(face_train)
     snout_eval = snout(face_eval)
-    ears = layers.Dense(units=1,name='ears')
+    ears = layers.Dense(units=1,activation='relu',name='ears')
     ears_train = ears(face_train)
     ears_eval = ears(face_eval)
-    whiskers = layers.Dense(units=1,name='whiskers')
+    whiskers = layers.Dense(units=1,activation='relu',name='whiskers')
     whiskers_train = whiskers(face_train)
     whiskers_eval = whiskers(face_eval)
-    nose = layers.Dense(units=1,name='nose') # NEW
+    nose = layers.Dense(units=1,activation='relu',name='nose') # NEW
     nose_train = nose(face_train)
     nose_eval = nose(face_eval)
-    teeth = layers.Dense(units=1,name='teeth') # NEW
+    teeth = layers.Dense(units=1,activation='relu',name='teeth') # NEW
     teeth_train = teeth(face_train)
     teeth_eval = teeth(face_eval)
-    beak = layers.Dense(units=1,name='beak') # NEW
+    beak = layers.Dense(units=1,activation='relu',name='beak') # NEW
     beak_train = beak(face_train)
     beak_eval = beak(face_eval)
-    wings = layers.Dense(units=1,name='wings') # NEW
-    wings_train = wings(face_train)
-    wings_eval = wings(face_eval)
-    tongue = layers.Dense(units=1,name='tongue') # NEW
+    tongue = layers.Dense(units=1,activation='relu',name='tongue') # NEW
     tongue_train = tongue(face_train)
     tongue_eval = tongue(face_eval)
     # Body hierarchy
-    body = layers.Dense(units=8,name='body')
+    body = layers.Dense(units=9,activation='relu',name='body')
     body_train = body(longest_vector_train)
     body_eval = body(longest_vector_eval)
-    paws = layers.Dense(units=1,name='paws')
+    wings = layers.Dense(units=1,activation='relu',name='wings') # NEW
+    wings_train = wings(body_train)
+    wings_eval = wings(body_eval)
+    paws = layers.Dense(units=1,activation='relu',name='paws')
     paws_train = paws(body_train)
     paws_eval = paws(body_eval)
-    tail = layers.Dense(units=1,name='tail')
+    tail = layers.Dense(units=1,activation='relu',name='tail')
     tail_train = tail(body_train)
     tail_eval = tail(body_eval)
-    legs = layers.Dense(units=1,name='legs') # NEW
+    legs = layers.Dense(units=1,activation='relu',name='legs') # NEW
     legs_train = legs(body_train)
     legs_eval = legs(body_eval)
-    surface = layers.Dense(units=1,name='surface') # NEW
+    surface = layers.Dense(units=1,activation='relu',name='surface') # NEW
     surface_train = surface(body_train)
     surface_eval = surface(body_eval)
-    arm_rest = layers.Dense(units=1,name='arm_rest') # NEW
+    arm_rest = layers.Dense(units=1,activation='relu',name='arm_rest') # NEW
     arm_rest_train = arm_rest(body_train)
     arm_rest_eval = arm_rest(body_eval)
-    base = layers.Dense(units=1,name='base') # NEW
+    base = layers.Dense(units=1,activation='relu',name='base') # NEW
     base_train = base(body_train)
     base_eval = base(body_eval)
-    pillows = layers.Dense(units=1,name='pillows') # NEW
+    pillows = layers.Dense(units=1,activation='relu',name='pillows') # NEW
     pillows_train = pillows(body_train)
     pillows_eval = pillows(body_eval)
-    cushions = layers.Dense(units=1,name='cushions') # NEW
+    cushions = layers.Dense(units=1,activation='relu',name='cushions') # NEW
     cushions_train = cushions(body_train)
     cushions_eval = cushions(body_eval)
     # Colour hierarchy
-    colour = layers.Dense(units=8,name='colour')
+    colour = layers.Dense(units=8,activation='relu',name='colour')
     colour_train = colour(longest_vector_train)
     colour_eval = colour(longest_vector_eval)
-    brown = layers.Dense(units=1,name='brown')
+    brown = layers.Dense(units=1,activation='relu',name='brown')
     brown_train = brown(colour_train)
     brown_eval = brown(colour_eval)
-    black = layers.Dense(units=1,name='black')
+    black = layers.Dense(units=1,activation='relu',name='black')
     black_train = black(colour_train)
     black_eval = black(colour_eval)
-    grey = layers.Dense(units=1,name='grey')
+    grey = layers.Dense(units=1,activation='relu',name='grey')
     grey_train = grey(colour_train)
     grey_eval = grey(colour_eval)
-    white = layers.Dense(units=1,name='white')
+    white = layers.Dense(units=1,activation='relu',name='white')
     white_train = white(colour_train)
     white_eval = white(colour_eval)
-    purple = layers.Dense(units=1,name='purple') # NEW
+    purple = layers.Dense(units=1,activation='relu',name='purple') # NEW
     purple_train = purple(colour_train)
     purple_eval = purple(colour_eval)
-    pink = layers.Dense(units=1,name='pink') # NEW
+    pink = layers.Dense(units=1,activation='relu',name='pink') # NEW
     pink_train = pink(colour_train)
     pink_eval = pink(colour_eval)
-    yellow = layers.Dense(units=1,name='yellow') # NEW
+    yellow = layers.Dense(units=1,activation='relu',name='yellow') # NEW
     yellow_train = yellow(colour_train)
     yellow_eval = yellow(colour_eval)
-    turqoise = layers.Dense(units=1,name='turqoise') # NEW
+    turqoise = layers.Dense(units=1,activation='relu',name='turqoise') # NEW
     turqoise_train = turqoise(colour_train)
     turqoise_eval = turqoise(colour_eval)
     # Alternate / Unknown hierarchy
-    unknown = layers.Dense(units=1,name='unknown') # NEW
+    unknown = layers.Dense(units=1,activation='relu',name='unknown') # NEW
     unknown_train = unknown(longest_vector_train)
     unknown_eval = unknown(longest_vector_eval)
 
     # Now, build both the models
-    hierarchy_train_model = models.Model([x, y], [out_caps,face_train,eyes_train,mouth_train,snout_train,ears_train,whiskers_train,nose_train,teeth_train,beak_train,wings_train,tongue_train,body_train,paws_train,tail_train,legs_train,surface_train,arm_rest_train,base_train,pillows_train,cushions_train,colour_train,brown_train,black_train,grey_train,white_train,purple_train,pink_train,yellow_train,turqoise_train,unknown_train])
-    hierarchy_eval_model  = models.Model(x,      [out_caps,face_eval,eyes_eval,mouth_eval,snout_eval,ears_eval,whiskers_eval,nose_eval,teeth_eval,beak_eval,wings_eval,tongue_eval,body_eval,paws_eval,tail_eval,legs_eval,surface_eval,arm_rest_eval,base_eval,pillows_eval,cushions_eval,colour_eval,brown_eval,black_eval,grey_eval,white_eval,purple_eval,pink_eval,yellow_eval,turqoise_eval,unknown_eval])
+    hierarchy_train_model = models.Model([x, y], [out_caps,face_train,eyes_train,mouth_train,snout_train,ears_train,whiskers_train,nose_train,teeth_train,beak_train,tongue_train,body_train,wings_train,paws_train,tail_train,legs_train,surface_train,arm_rest_train,base_train,pillows_train,cushions_train,colour_train,brown_train,black_train,grey_train,white_train,purple_train,pink_train,yellow_train,turqoise_train,unknown_train])
+    hierarchy_eval_model  = models.Model(x,      [out_caps,face_eval,eyes_eval,mouth_eval,snout_eval,ears_eval,whiskers_eval,nose_eval,teeth_eval,beak_eval,tongue_eval,body_eval,wings_eval,paws_eval,tail_eval,legs_eval,surface_eval,arm_rest_eval,base_eval,pillows_eval,cushions_eval,colour_eval,brown_eval,black_eval,grey_eval,white_eval,purple_eval,pink_eval,yellow_eval,turqoise_eval,unknown_eval])
     #------------------------------------------------------------------------------------------------------------------------------
 
     # Decoder network.
@@ -375,10 +375,182 @@ def get_file_name(path):
 
 def build_output(features):
     # Builds the output according to the output format in the hierarchy_( train | eval )_model
-    output = []
+    # Length of output vector
+    output = [0 for _ in range(30)]
     # -------- Volatile (under processing) ------------------------- <BEGIN>
-
-
+    nothing_present_flag = True
+    # Order - face,eyes,mouth,snout,ears,whiskers,nose,teeth,beak,tongue,body,wings,paws,tail,legs,surface,arm_rest,base,pillows,cushions,colour,brown,black,grey,white,purple,pink,yellow,turqoise,unknown
+    if 'face' in output:
+    	output[0]=1
+    	nothing_present_flag = False
+    if 'eyes' in output:
+    	output[1]=1
+    	output[0]=1
+    	nothing_present_flag = False
+    if 'mouth' in output:
+    	output[2]=1
+    	output[0]=1
+    	nothing_present_flag = False
+    if 'snout' in output:
+    	output[3]=1
+    	output[0]=1
+    	nothing_present_flag = False
+    if 'ears' in output:
+    	output[4]=1
+    	output[0]=1
+    	nothing_present_flag = False
+    if 'whiskers' in output:
+    	output[5]=1
+    	output[0]=1
+    	nothing_present_flag = False
+    if 'nose' in output:
+    	output[6]=1
+    	output[0]=1
+    	nothing_present_flag = False
+    if 'teeth' in output:
+    	output[7]=1
+    	output[0]=1
+    	nothing_present_flag = False
+    if 'beak' in output:
+    	output[8]=1
+    	output[0]=1
+    	nothing_present_flag = False
+    if 'tongue' in output:
+    	output[9]=1
+    	output[0]=1
+    	nothing_present_flag = False
+    if 'body' in output:
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'wings' in output:
+    	output[11]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'paws' in output:
+    	output[12]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'tail' in output:
+    	output[13]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'legs' in output:
+    	output[14]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'surface' in output:
+    	output[15]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'arm rests' in output:
+    	output[16]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'base' in output:
+    	output[17]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'pillows' in output:
+    	output[18]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'cushions' in output:
+    	output[19]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'colour' in output:
+    	output[20]=1
+    	nothing_present_flag = False
+    if 'brown' in output:
+    	output[21]=1
+    	output[20]=1
+    	nothing_present_flag = False
+    if 'black' in output:
+    	output[22]=1
+    	output[20]=1
+    	nothing_present_flag = False
+    if 'grey' in output:
+    	output[23]=1
+    	output[20]=1
+    	nothing_present_flag = False
+    if 'white' in output:
+    	output[24]=1
+    	output[20]=1
+    	nothing_present_flag = False
+    if 'purple' in output:
+    	output[25]=1
+    	output[20]=1
+    	nothing_present_flag = False
+    if 'pink' in output:
+    	output[26]=1
+    	output[20]=1
+    	nothing_present_flag = False
+    if 'yellow' in output:
+    	output[27]=1
+    	output[20]=1
+    	nothing_present_flag = False
+    if 'turqoise' in output:
+    	output[28]=1
+    	output[20]=1
+    	nothing_present_flag = False
+    # Other "similar" cases
+    if 'eye' in output:
+    	output[1]=0.5
+    	output[0]=1
+    	nothing_present_flag = False
+    if 'ear' in output:
+    	output[4]=0.5
+    	output[0]=1
+    	nothing_present_flag = False
+    if 'wing' in output:
+    	output[11]=0.5
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'paw' in output:
+    	output[12]=0.5
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'leg' in output:
+    	output[14]=0.5
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'rectangular surface' in output:
+    	output[15]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'circular surface' in output:
+    	output[15]=2
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'arm rest' in output:
+    	output[16]=0.5
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'pillow' in output:
+    	output[18]=0.5
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'cushion' in output:
+    	output[19]=0.5
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'silver' in output:
+    	output[24]=0.5
+    	output[20]=1
+    	nothing_present_flag = False
+    if 'transparent' in output:
+    	output[24]=0
+    	output[20]=1
+    	nothing_present_flag = False
+    if 'golden' in output:
+    	output[27]=0.5
+    	output[20]=1
+    	nothing_present_flag = False
+    
+    # For 'unknown' case
+    if nothing_present_flag:
+		output[:-1] = [0]*(len(output)-1)
+		output[-1]=1
     output = np.array(output)
     # -------- Volatile (under processing) ------------------------- <END>
     return output
