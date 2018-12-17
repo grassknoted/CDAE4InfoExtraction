@@ -12,8 +12,6 @@ Usage:
 Result:
     Validation accuracy > 99.5% after 20 epochs. Converge to 99.66% after 50 epochs.
     About 110 seconds per epoch on a single GTX1070 GPU card
-    
-Author: Xifeng Guo, E-mail: `guoxifeng1990@163.com`, Github: `https://github.com/XifengGuo/CapsNet-Keras`
 """
 import os
 import cv2
@@ -102,18 +100,19 @@ def CapsNet(input_shape, n_class, routings):
 
     longest_vector_train = masked_by_y
     longest_vector_eval = masked
-    
+
     # Keep adding hierarchies
+
     # Face hierarchy
-    face = layers.Dense(units=5,name='face')
+    face = layers.Dense(units=10,name='face')
     face_train = face(longest_vector_train)
     face_eval = face(longest_vector_eval)
     eyes = layers.Dense(units=1,name='eyes')
     eyes_train = eyes(face_train)
     eyes_eval = eyes(face_eval)
-    mouth_open = layers.Dense(units=1,name='mouth_open')
-    mouth_open_train = mouth_open(face_train)
-    mouth_open_eval = mouth_open(face_eval)
+    mouth = layers.Dense(units=1,name='mouth')
+    mouth_train = mouth(face_train)
+    mouth_eval = mouth(face_eval)
     snout = layers.Dense(units=1,name='snout')
     snout_train = snout(face_train)
     snout_eval = snout(face_eval)
@@ -123,8 +122,23 @@ def CapsNet(input_shape, n_class, routings):
     whiskers = layers.Dense(units=1,name='whiskers')
     whiskers_train = whiskers(face_train)
     whiskers_eval = whiskers(face_eval)
+    nose = layers.Dense(units=1,name='nose') # NEW
+    nose_train = nose(face_train)
+    nose_eval = nose(face_eval)
+    teeth = layers.Dense(units=1,name='teeth') # NEW
+    teeth_train = teeth(face_train)
+    teeth_eval = teeth(face_eval)
+    beak = layers.Dense(units=1,name='beak') # NEW
+    beak_train = beak(face_train)
+    beak_eval = beak(face_eval)
+    wings = layers.Dense(units=1,name='wings') # NEW
+    wings_train = wings(face_train)
+    wings_eval = wings(face_eval)
+    tongue = layers.Dense(units=1,name='tongue') # NEW
+    tongue_train = tongue(face_train)
+    tongue_eval = tongue(face_eval)
     # Body hierarchy
-    body = layers.Dense(units=2,name='body')
+    body = layers.Dense(units=8,name='body')
     body_train = body(longest_vector_train)
     body_eval = body(longest_vector_eval)
     paws = layers.Dense(units=1,name='paws')
@@ -133,8 +147,26 @@ def CapsNet(input_shape, n_class, routings):
     tail = layers.Dense(units=1,name='tail')
     tail_train = tail(body_train)
     tail_eval = tail(body_eval)
+    legs = layers.Dense(units=1,name='legs') # NEW
+    legs_train = legs(body_train)
+    legs_eval = legs(body_eval)
+    surface = layers.Dense(units=1,name='surface') # NEW
+    surface_train = surface(body_train)
+    surface_eval = surface(body_eval)
+    arm_rest = layers.Dense(units=1,name='arm_rest') # NEW
+    arm_rest_train = arm_rest(body_train)
+    arm_rest_eval = arm_rest(body_eval)
+    base = layers.Dense(units=1,name='base') # NEW
+    base_train = base(body_train)
+    base_eval = base(body_eval)
+    pillows = layers.Dense(units=1,name='pillows') # NEW
+    pillows_train = pillows(body_train)
+    pillows_eval = pillows(body_eval)
+    cushions = layers.Dense(units=1,name='cushions') # NEW
+    cushions_train = cushions(body_train)
+    cushions_eval = cushions(body_eval)
     # Colour hierarchy
-    colour = layers.Dense(units=4,name='colour')
+    colour = layers.Dense(units=8,name='colour')
     colour_train = colour(longest_vector_train)
     colour_eval = colour(longest_vector_eval)
     brown = layers.Dense(units=1,name='brown')
@@ -149,10 +181,26 @@ def CapsNet(input_shape, n_class, routings):
     white = layers.Dense(units=1,name='white')
     white_train = white(colour_train)
     white_eval = white(colour_eval)
+    purple = layers.Dense(units=1,name='purple') # NEW
+    purple_train = purple(colour_train)
+    purple_eval = purple(colour_eval)
+    pink = layers.Dense(units=1,name='pink') # NEW
+    pink_train = pink(colour_train)
+    pink_eval = pink(colour_eval)
+    yellow = layers.Dense(units=1,name='yellow') # NEW
+    yellow_train = yellow(colour_train)
+    yellow_eval = yellow(colour_eval)
+    turqoise = layers.Dense(units=1,name='turqoise') # NEW
+    turqoise_train = turqoise(colour_train)
+    turqoise_eval = turqoise(colour_eval)
+    # Alternate / Unknown hierarchy
+    unknown = layers.Dense(units=1,name='unknown') # NEW
+    unknown_train = unknown(longest_vector_train)
+    unknown_eval = unknown(longest_vector_eval)
 
     # Now, build both the models
-    hierarchy_train_model = models.Model([x, y], [out_caps,face_train,eyes_train,mouth_open_train,snout_train,ears_train,whiskers_train,body_train,paws_train,tail_train,colour_train,brown_train,black_train,grey_train,white_train])
-    hierarchy_eval_model = models.Model(x, [out_caps,face_eval,eyes_eval,mouth_open_eval,snout_eval,ears_eval,whiskers_eval,body_eval,paws_eval,tail_eval,colour_eval,brown_eval,black_eval,grey_eval,white_eval])
+    hierarchy_train_model = models.Model([x, y], [out_caps,face_train,eyes_train,mouth_train,snout_train,ears_train,whiskers_train,nose_train,teeth_train,beak_train,wings_train,tongue_train,body_train,paws_train,tail_train,legs_train,surface_train,arm_rest_train,base_train,pillows_train,cushions_train,colour_train,brown_train,black_train,grey_train,white_train,purple_train,pink_train,yellow_train,turqoise_train,unknown_train])
+    hierarchy_eval_model  = models.Model(x,      [out_caps,face_eval,eyes_eval,mouth_eval,snout_eval,ears_eval,whiskers_eval,nose_eval,teeth_eval,beak_eval,wings_eval,tongue_eval,body_eval,paws_eval,tail_eval,legs_eval,surface_eval,arm_rest_eval,base_eval,pillows_eval,cushions_eval,colour_eval,brown_eval,black_eval,grey_eval,white_eval,purple_eval,pink_eval,yellow_eval,turqoise_eval,unknown_eval])
     #------------------------------------------------------------------------------------------------------------------------------
 
     # Decoder network.
