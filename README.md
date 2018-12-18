@@ -127,7 +127,7 @@ reported by 3 trials. The results can be reproduced by launching the following c
    CapsNet-v4  |  3 | yes| 0.34 (0.016) | *0.25 (0.005)*
    
 Losses and accuracies:   
-![](result/log.png)
+![](capsnet-keras/result/log.png)
 
 
 #### Training Speed 
@@ -145,7 +145,7 @@ python capsulenet.py -t -w result/trained_model.h5
 Digits at top 5 rows are real images from MNIST and 
 digits at bottom are corresponding reconstructed images.
 
-![](result/real_and_recon.png)
+![](capsnet-keras/result/real_and_recon.png)
 
 #### Manipulate latent code
 
