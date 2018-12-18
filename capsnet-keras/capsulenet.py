@@ -11,7 +11,7 @@ Usage:
        
 Result:
     Validation accuracy > 99.5% after 20 epochs. Converge to 99.66% after 50 epochs.
-    About 110 seconds per epoch on a single GTX1070 GPU card
+    About 110 seconds per epoch on a single Nvidia GTX 1070 GPU card
 """
 import os
 import cv2
@@ -135,7 +135,7 @@ def CapsNet(input_shape, n_class, routings):
     tongue_train = tongue(face_train)
     tongue_eval = tongue(face_eval)
     # Body hierarchy
-    body = layers.Dense(units=9,activation='relu',name='body')
+    body = layers.Dense(units=12,activation='relu',name='body')
     body_train = body(longest_vector_train)
     body_eval = body(longest_vector_eval)
     wings = layers.Dense(units=1,activation='relu',name='wings') # NEW
@@ -165,6 +165,15 @@ def CapsNet(input_shape, n_class, routings):
     cushions = layers.Dense(units=1,activation='relu',name='cushions') # NEW
     cushions_train = cushions(body_train)
     cushions_eval = cushions(body_eval)
+    drawer = layers.Dense(units=1,activation='relu',name='drawer') # NEW
+    drawer_train = cushions(body_train)
+    drawer_eval = cushions(body_eval)
+    knob = layers.Dense(units=1,activation='relu',name='knob') # NEW
+    knob_train = cushions(body_train)
+    knob_eval = cushions(body_eval)
+    mattress = layers.Dense(units=1,activation='relu',name='mattress') # NEW
+    mattress_train = cushions(body_train)
+    mattress_eval = cushions(body_eval)
     # Colour hierarchy
     colour = layers.Dense(units=8,activation='relu',name='colour')
     colour_train = colour(longest_vector_train)
@@ -199,8 +208,8 @@ def CapsNet(input_shape, n_class, routings):
     unknown_eval = unknown(longest_vector_eval)
 
     # Now, build both the models
-    hierarchy_train_model = models.Model([x, y], [out_caps,face_train,eyes_train,mouth_train,snout_train,ears_train,whiskers_train,nose_train,teeth_train,beak_train,tongue_train,body_train,wings_train,paws_train,tail_train,legs_train,surface_train,arm_rest_train,base_train,pillows_train,cushions_train,colour_train,brown_train,black_train,grey_train,white_train,purple_train,pink_train,yellow_train,turqoise_train,unknown_train])
-    hierarchy_eval_model  = models.Model(x,      [out_caps,face_eval,eyes_eval,mouth_eval,snout_eval,ears_eval,whiskers_eval,nose_eval,teeth_eval,beak_eval,tongue_eval,body_eval,wings_eval,paws_eval,tail_eval,legs_eval,surface_eval,arm_rest_eval,base_eval,pillows_eval,cushions_eval,colour_eval,brown_eval,black_eval,grey_eval,white_eval,purple_eval,pink_eval,yellow_eval,turqoise_eval,unknown_eval])
+    hierarchy_train_model = models.Model([x, y], [out_caps,face_train,eyes_train,mouth_train,snout_train,ears_train,whiskers_train,nose_train,teeth_train,beak_train,tongue_train,body_train,wings_train,paws_train,tail_train,legs_train,surface_train,arm_rest_train,base_train,pillows_train,cushions_train,drawer_train,knob_train,mattress_train,colour_train,brown_train,black_train,grey_train,white_train,purple_train,pink_train,yellow_train,turqoise_train,unknown_train])
+    hierarchy_eval_model  = models.Model(x,      [out_caps,face_eval,eyes_eval,mouth_eval,snout_eval,ears_eval,whiskers_eval,nose_eval,teeth_eval,beak_eval,tongue_eval,body_eval,wings_eval,paws_eval,tail_eval,legs_eval,surface_eval,arm_rest_eval,base_eval,pillows_eval,cushions_eval,drawer_eval,knob_eval,mattress_eval,colour_eval,brown_eval,black_eval,grey_eval,white_eval,purple_eval,pink_eval,yellow_eval,turqoise_eval,unknown_eval])
     #------------------------------------------------------------------------------------------------------------------------------
 
     # Decoder network.
@@ -376,10 +385,10 @@ def get_file_name(path):
 def build_output(features):
     # Builds the output according to the output format in the hierarchy_( train | eval )_model
     # Length of output vector
-    output = [0 for _ in range(30)]
+    output = [0 for _ in range(33)]
     # -------- Volatile (under processing) ------------------------- <BEGIN>
     nothing_present_flag = True
-    # Order - face,eyes,mouth,snout,ears,whiskers,nose,teeth,beak,tongue,body,wings,paws,tail,legs,surface,arm_rest,base,pillows,cushions,colour,brown,black,grey,white,purple,pink,yellow,turqoise,unknown
+    # Order - face,eyes,mouth,snout,ears,whiskers,nose,teeth,beak,tongue,body,wings,paws,tail,legs,surface,arm_rest,base,pillows,cushions,drawer,knob,mattress,colour,brown,black,grey,white,purple,pink,yellow,turqoise,unknown
     if 'face' in output:
     	output[0]=1
     	nothing_present_flag = False
@@ -458,40 +467,52 @@ def build_output(features):
     	output[19]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'colour' in output:
+    if 'drawer' in output:
     	output[20]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'knob' in output:
+    	output[21]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'mattress' in output:
+    	output[22]=1
+    	output[10]=1
+    	nothing_present_flag = False
+    if 'colour' in output:
+    	output[23]=1
     	nothing_present_flag = False
     if 'brown' in output:
-    	output[21]=1
-    	output[20]=1
+    	output[24]=1
+    	output[23]=1
     	nothing_present_flag = False
     if 'black' in output:
-    	output[22]=1
-    	output[20]=1
+    	output[25]=1
+    	output[23]=1
     	nothing_present_flag = False
     if 'grey' in output:
+    	output[26]=1
     	output[23]=1
-    	output[20]=1
     	nothing_present_flag = False
     if 'white' in output:
-    	output[24]=1
-    	output[20]=1
+    	output[27]=1
+    	output[23]=1
     	nothing_present_flag = False
     if 'purple' in output:
-    	output[25]=1
-    	output[20]=1
+    	output[28]=1
+    	output[23]=1
     	nothing_present_flag = False
     if 'pink' in output:
-    	output[26]=1
-    	output[20]=1
+    	output[29]=1
+    	output[23]=1
     	nothing_present_flag = False
     if 'yellow' in output:
-    	output[27]=1
-    	output[20]=1
+    	output[30]=1
+    	output[23]=1
     	nothing_present_flag = False
     if 'turqoise' in output:
-    	output[28]=1
-    	output[20]=1
+    	output[31]=1
+    	output[23]=1
     	nothing_present_flag = False
     # Other "similar" cases
     if 'eye' in output:
@@ -535,16 +556,16 @@ def build_output(features):
     	output[10]=1
     	nothing_present_flag = False
     if 'silver' in output:
-    	output[24]=0.5
-    	output[20]=1
+    	output[27]=0.5
+    	output[23]=1
     	nothing_present_flag = False
     if 'transparent' in output:
-    	output[24]=0
-    	output[20]=1
+    	output[27]=0
+    	output[23]=1
     	nothing_present_flag = False
     if 'golden' in output:
-    	output[27]=0.5
-    	output[20]=1
+    	output[30]=0.5
+    	output[23]=1
     	nothing_present_flag = False
     
     # For 'unknown' case
@@ -604,7 +625,6 @@ def load_custom_dataset(dataset_path):
                             y_train_features = row['Features']
                             y_train_output.append(build_output(y_train_features))
                             break
-
 
     x_train = np.array(x_train)
     y_train = np.array(y_train)
