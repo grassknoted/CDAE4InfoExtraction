@@ -161,13 +161,13 @@ different digit capsules may represent different characteristics. This is becaus
 digits are reconstructed from different feature vectors (digit capsules). These vectors are mutually 
 independent during reconstruction.
     
-![](result/manipulate-0.png)
-![](result/manipulate-1.png)
-![](result/manipulate-2.png)
-![](result/manipulate-3.png)
-![](result/manipulate-4.png)
-![](result/manipulate-5.png)
-![](result/manipulate-6.png)
-![](result/manipulate-7.png)
-![](result/manipulate-8.png)
-![](result/manipulate-9.png)
+![](capsnet-keras/result/manipulate-0.png)
+![](capsnet-keras/result/manipulate-1.png)
+![](capsnet-keras/result/manipulate-2.png)
+![](capsnet-keras/result/manipulate-3.png)
+![](capsnet-keras/result/manipulate-4.png)
+![](capsnet-keras/result/manipulate-5.png)
+![](capsnet-keras/result/manipulate-6.png)
+![](capsnet-keras/result/manipulate-7.png)
+![](capsnet-keras/result/manipulate-8.png)
+![](capsnet-keras/result/manipulate-9.png)
