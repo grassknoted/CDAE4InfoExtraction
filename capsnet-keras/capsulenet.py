@@ -107,6 +107,9 @@ def CapsNet(input_shape, n_class, routings):
     face = layers.Dense(units=9,activation='relu',name='face')
     face_train = face(longest_vector_train)
     face_eval = face(longest_vector_eval)
+    face_output = layers.Dense(units=1,activation='softmax',name='face_output')
+    face_output_train = face_output(face_train)
+    face_output_eval = face_output(face_eval)
     eyes = layers.Dense(units=1,activation='relu',name='eyes')
     eyes_train = eyes(face_train)
     eyes_eval = eyes(face_eval)
@@ -138,6 +141,9 @@ def CapsNet(input_shape, n_class, routings):
     body = layers.Dense(units=12,activation='relu',name='body')
     body_train = body(longest_vector_train)
     body_eval = body(longest_vector_eval)
+    body_output = layers.Dense(units=1,activation='softmax',name='body_output')
+    body_output_train = body_output(body_train)
+    body_output_eval = body_output(body_eval)
     wings = layers.Dense(units=1,activation='relu',name='wings') # NEW
     wings_train = wings(body_train)
     wings_eval = wings(body_eval)
@@ -166,18 +172,21 @@ def CapsNet(input_shape, n_class, routings):
     cushions_train = cushions(body_train)
     cushions_eval = cushions(body_eval)
     drawer = layers.Dense(units=1,activation='relu',name='drawer') # NEW
-    drawer_train = cushions(body_train)
-    drawer_eval = cushions(body_eval)
+    drawer_train = drawer(body_train)
+    drawer_eval = drawer(body_eval)
     knob = layers.Dense(units=1,activation='relu',name='knob') # NEW
-    knob_train = cushions(body_train)
-    knob_eval = cushions(body_eval)
+    knob_train = knob(body_train)
+    knob_eval = knob(body_eval)
     mattress = layers.Dense(units=1,activation='relu',name='mattress') # NEW
-    mattress_train = cushions(body_train)
-    mattress_eval = cushions(body_eval)
+    mattress_train = mattress(body_train)
+    mattress_eval = mattress(body_eval)
     # Colour hierarchy
     colour = layers.Dense(units=8,activation='relu',name='colour')
     colour_train = colour(longest_vector_train)
     colour_eval = colour(longest_vector_eval)
+    colour_output = layers.Dense(units=1,activation='softmax',name='colour_output')
+    colour_output_train = colour_output(colour_train)
+    colour_output_eval = colour_output(colour_eval)
     brown = layers.Dense(units=1,activation='relu',name='brown')
     brown_train = brown(colour_train)
     brown_eval = brown(colour_eval)
@@ -208,8 +217,8 @@ def CapsNet(input_shape, n_class, routings):
     unknown_eval = unknown(longest_vector_eval)
 
     # Now, build both the models
-    hierarchy_train_model = models.Model([x, y], [out_caps,face_train,eyes_train,mouth_train,snout_train,ears_train,whiskers_train,nose_train,teeth_train,beak_train,tongue_train,body_train,wings_train,paws_train,tail_train,legs_train,surface_train,arm_rest_train,base_train,pillows_train,cushions_train,drawer_train,knob_train,mattress_train,colour_train,brown_train,black_train,grey_train,white_train,purple_train,pink_train,yellow_train,turqoise_train,unknown_train])
-    hierarchy_eval_model  = models.Model(x,      [out_caps,face_eval,eyes_eval,mouth_eval,snout_eval,ears_eval,whiskers_eval,nose_eval,teeth_eval,beak_eval,tongue_eval,body_eval,wings_eval,paws_eval,tail_eval,legs_eval,surface_eval,arm_rest_eval,base_eval,pillows_eval,cushions_eval,drawer_eval,knob_eval,mattress_eval,colour_eval,brown_eval,black_eval,grey_eval,white_eval,purple_eval,pink_eval,yellow_eval,turqoise_eval,unknown_eval])
+    hierarchy_train_model = models.Model([x, y], [out_caps,face_output_train,eyes_train,mouth_train,snout_train,ears_train,whiskers_train,nose_train,teeth_train,beak_train,tongue_train,body_output_train,wings_train,paws_train,tail_train,legs_train,surface_train,arm_rest_train,base_train,pillows_train,cushions_train,drawer_train,knob_train,mattress_train,colour_output_train,brown_train,black_train,grey_train,white_train,purple_train,pink_train,yellow_train,turqoise_train,unknown_train])
+    hierarchy_eval_model  = models.Model(x,      [out_caps,face_output_eval,eyes_eval,mouth_eval,snout_eval,ears_eval,whiskers_eval,nose_eval,teeth_eval,beak_eval,tongue_eval,body_output_eval,wings_eval,paws_eval,tail_eval,legs_eval,surface_eval,arm_rest_eval,base_eval,pillows_eval,cushions_eval,drawer_eval,knob_eval,mattress_eval,colour_output_eval,brown_eval,black_eval,grey_eval,white_eval,purple_eval,pink_eval,yellow_eval,turqoise_eval,unknown_eval])
     #------------------------------------------------------------------------------------------------------------------------------
 
     # Decoder network.
@@ -248,12 +257,12 @@ def total_loss(y_true, y_pred):
     # y_true = tf.convert_to_tensor(y_true, dtype=tf.float32)
     # y_pred = tf.convert_to_tensor(y_pred, dtype=tf.float32) 
      
-    # L is of dimension(?,10)  
+    # L is of dimension(?,5)  
 
-    # Changes made here to fix the KLD Loss term error
+    # Changes made here to fix the KL Divergence loss term error
     L = y_true * K.square(K.maximum(0., 0.9 - y_pred)) + 0.5 * (1 - y_true) * K.square(K.maximum(0., y_pred - 0.1))
     '''
-    # kl_loss is of dimension (?,10,16). Be careful when you add the two. This simplification of KLD is for Gaussian only
+    # kl_loss is of dimension (?,5,16). Be careful when you add the two. This simplification of KLD is for Gaussian only
     kl_loss = tf.convert_to_tensor(log_variance, dtype=tf.float32) + tf.convert_to_tensor(log_variance, dtype=tf.float32) - tf.cast(K.square(tf.convert_to_tensor(mean, dtype=tf.float32)), tf.float32) - tf.cast(K.exp(tf.convert_to_tensor(log_variance, dtype=tf.float32)), tf.float32)
     kl_loss = K.sum(kl_loss, axis=-1)
     kl_loss *= -0.5
@@ -263,7 +272,6 @@ def total_loss(y_true, y_pred):
     '''
     kl_loss = tf.convert_to_tensor(losses.kullback_leibler_divergence(y_true, y_pred))
     return tf.convert_to_tensor(K.mean(K.sum(L,1)+kl_loss))
-
 
 def train(model, data, args):
     """
@@ -286,22 +294,46 @@ def train(model, data, args):
     lr_decay = callbacks.LearningRateScheduler(schedule=lambda epoch: args.lr * (args.lr_decay ** epoch))
 
     # Compile the model
+
+    # all_losses - 34 is the number of outputs
+    all_losses = ['mse' for _ in range(34)]
+    # change first one to total_loss
+    all_losses[0] = total_loss
+
+    # all_loss_weights - 34 is the number of outputs
+    # We're giving a weight of 0.5 for the final outputs to the total weight
+    all_loss_weights = [0.5 for _ in range(34)]
+    all_loss_weights[0] = 1.
+
     model.compile(optimizer=optimizers.Adam(lr=args.lr),
-                  loss=[total_loss, 'mse'],
-                  loss_weights=[1., args.lam_recon],
+                  loss=all_losses,
+                  loss_weights=all_loss_weights,
                   metrics={'capsnet': 'accuracy'})
 
     
     # Training without data augmentation (preferred) :
-    y_train_list=[]
+    # Combine y_train and y_train_output to get an uniform vector
+    y_train_list=[0]    # Dummy value to avoid index out of bounds in next line
     y_train_list[0] = y_train
+
+    # To reshape  y_train_output from [None,33] to [33,None]
+    y_train_output = np.array([np.array(_) for _ in zip(*y_train_output)])
     for output in y_train_output:
         y_train_list.append(output)
+    
+    # Combine y_test and y_test_output to get an uniform vector
+    y_test_list=[0]    # Dummy value to avoid index out of bounds in next line
+    y_test_list[0] = y_test
+
+    # To reshape  y_test_output from [None,33] to [33,None]
+    y_test_output = np.array([np.array(_) for _ in zip(*y_test_output)])
+    for output in y_test_output:
+        y_test_list.append(output)
 
     model.fit([x_train, y_train], y_train_list,
      batch_size=args.batch_size, 
      epochs=args.epochs,
-     validation_data=[[x_test, y_test], [y_test, y_test_output]], 
+     validation_data=[[x_test, y_test], y_test_list], 
      callbacks=[log, tb, checkpoint, lr_decay])
     
     '''
@@ -389,189 +421,197 @@ def build_output(features):
     # -------- Volatile (under processing) ------------------------- <BEGIN>
     nothing_present_flag = True
     # Order - face,eyes,mouth,snout,ears,whiskers,nose,teeth,beak,tongue,body,wings,paws,tail,legs,surface,arm_rest,base,pillows,cushions,drawer,knob,mattress,colour,brown,black,grey,white,purple,pink,yellow,turqoise,unknown
-    if 'face' in output:
+    if 'face' in features:
     	output[0]=1
     	nothing_present_flag = False
-    if 'eyes' in output:
+    if 'eyes' in features:
     	output[1]=1
     	output[0]=1
     	nothing_present_flag = False
-    if 'mouth' in output:
+    if 'mouth' in features:
     	output[2]=1
     	output[0]=1
     	nothing_present_flag = False
-    if 'snout' in output:
+    if 'snout' in features:
     	output[3]=1
     	output[0]=1
     	nothing_present_flag = False
-    if 'ears' in output:
+    if 'ears' in features:
     	output[4]=1
     	output[0]=1
     	nothing_present_flag = False
-    if 'whiskers' in output:
+    if 'whiskers' in features:
     	output[5]=1
     	output[0]=1
     	nothing_present_flag = False
-    if 'nose' in output:
+    if 'nose' in features:
     	output[6]=1
     	output[0]=1
     	nothing_present_flag = False
-    if 'teeth' in output:
+    if 'teeth' in features:
     	output[7]=1
     	output[0]=1
     	nothing_present_flag = False
-    if 'beak' in output:
+    if 'beak' in features:
     	output[8]=1
     	output[0]=1
     	nothing_present_flag = False
-    if 'tongue' in output:
+    if 'tongue' in features:
     	output[9]=1
     	output[0]=1
     	nothing_present_flag = False
-    if 'body' in output:
+    if 'body' in features:
     	output[10]=1
     	nothing_present_flag = False
-    if 'wings' in output:
+    if 'wings' in features:
     	output[11]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'paws' in output:
+    if 'paws' in features:
     	output[12]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'tail' in output:
+    if 'tail' in features:
     	output[13]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'legs' in output:
+    if 'legs' in features:
     	output[14]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'surface' in output:
+    if 'surface' in features:
     	output[15]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'arm rests' in output:
+    if 'arm rests' in features:
     	output[16]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'base' in output:
+    if 'base' in features:
     	output[17]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'pillows' in output:
+    if 'pillows' in features:
     	output[18]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'cushions' in output:
+    if 'cushions' in features:
     	output[19]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'drawer' in output:
+    if 'drawers' in features:
     	output[20]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'knob' in output:
+    if 'knobs' in features:
     	output[21]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'mattress' in output:
+    if 'mattress' in features:
     	output[22]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'colour' in output:
+    if 'colour' in features:
     	output[23]=1
     	nothing_present_flag = False
-    if 'brown' in output:
+    if 'brown' in features:
     	output[24]=1
     	output[23]=1
     	nothing_present_flag = False
-    if 'black' in output:
+    if 'black' in features:
     	output[25]=1
     	output[23]=1
     	nothing_present_flag = False
-    if 'grey' in output:
+    if 'grey' in features:
     	output[26]=1
     	output[23]=1
     	nothing_present_flag = False
-    if 'white' in output:
+    if 'white' in features:
     	output[27]=1
     	output[23]=1
     	nothing_present_flag = False
-    if 'purple' in output:
+    if 'purple' in features:
     	output[28]=1
     	output[23]=1
     	nothing_present_flag = False
-    if 'pink' in output:
+    if 'pink' in features:
     	output[29]=1
     	output[23]=1
     	nothing_present_flag = False
-    if 'yellow' in output:
+    if 'yellow' in features:
     	output[30]=1
     	output[23]=1
     	nothing_present_flag = False
-    if 'turqoise' in output:
+    if 'turqoise' in features:
     	output[31]=1
     	output[23]=1
     	nothing_present_flag = False
     # Other "similar" cases
-    if 'eye' in output:
+    if 'eye' in features:
     	output[1]=0.5
     	output[0]=1
     	nothing_present_flag = False
-    if 'ear' in output:
+    if 'ear' in features:
     	output[4]=0.5
     	output[0]=1
     	nothing_present_flag = False
-    if 'wing' in output:
+    if 'wing' in features:
     	output[11]=0.5
     	output[10]=1
     	nothing_present_flag = False
-    if 'paw' in output:
+    if 'paw' in features:
     	output[12]=0.5
     	output[10]=1
     	nothing_present_flag = False
-    if 'leg' in output:
+    if 'leg' in features:
     	output[14]=0.5
     	output[10]=1
     	nothing_present_flag = False
-    if 'rectangular surface' in output:
+    if 'rectangular surface' in features:
     	output[15]=1
     	output[10]=1
     	nothing_present_flag = False
-    if 'circular surface' in output:
+    if 'circular surface' in features:
     	output[15]=2
     	output[10]=1
     	nothing_present_flag = False
-    if 'arm rest' in output:
+    if 'arm rest' in features:
     	output[16]=0.5
     	output[10]=1
     	nothing_present_flag = False
-    if 'pillow' in output:
+    if 'pillow' in features:
     	output[18]=0.5
     	output[10]=1
     	nothing_present_flag = False
-    if 'cushion' in output:
+    if 'cushion' in features:
     	output[19]=0.5
     	output[10]=1
     	nothing_present_flag = False
-    if 'silver' in output:
+    if 'drawer' in features:
+        output[20]=0.5
+        output[10]=1
+        nothing_present_flag = False
+    if 'knob' in features:
+        output[21]=0.5
+        output[10]=1
+        nothing_present_flag = False
+    if 'silver' in features:
     	output[27]=0.5
     	output[23]=1
     	nothing_present_flag = False
-    if 'transparent' in output:
+    if 'transparent' in features:
     	output[27]=0
     	output[23]=1
     	nothing_present_flag = False
-    if 'golden' in output:
+    if 'golden' in features:
     	output[30]=0.5
     	output[23]=1
     	nothing_present_flag = False
     
     # For 'unknown' case
     if nothing_present_flag:
-		output[:-1] = [0]*(len(output)-1)
-		output[-1]=1
+        output[:-1] = [0]*(len(output)-1)
+        output[-1]=1
     output = np.array(output)
     # -------- Volatile (under processing) ------------------------- <END>
     return output
@@ -605,11 +645,12 @@ def load_custom_dataset(dataset_path):
                     img = cv2.imread(current_file)
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                     img = cv2.resize(img, (28, 28))
-                    x_test.append(img)
-                    y_test.append(class_encodings[class_name])
-                    # y_test_output logic
+                    
+                    # y_test_output logic with x_test and y_test append
                     for index, row in y_train_dataframe.iterrows():
                         if get_file_name(current_file) == row['File Name']:
+                            x_test.append(img)
+                            y_test.append(class_encodings[sub_class])
                             y_test_features = row['Features']
                             y_test_output.append(build_output(y_test_features))
                             break
@@ -617,11 +658,12 @@ def load_custom_dataset(dataset_path):
                     img = cv2.imread(current_file)
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                     img = cv2.resize(img, (28, 28))
-                    x_train.append(img)
-                    y_train.append(class_encodings[class_name])
-                    # y_train_output logic
+                    
+                    # y_train_output logic with x_train and y_train append
                     for index, row in y_train_dataframe.iterrows():
                         if get_file_name(current_file) == row['File Name']:
+                            x_train.append(img)
+                            y_train.append(class_encodings[sub_class])
                             y_train_features = row['Features']
                             y_train_output.append(build_output(y_train_features))
                             break
@@ -637,7 +679,7 @@ def load_custom_dataset(dataset_path):
     y_test_output = np.array(y_test_output)
     x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
     y_test = to_categorical(y_test.astype('float32'))
-    
+
     return (x_train, y_train, y_train_output), (x_test, y_test, y_test_output)
 
 if __name__ == "__main__":
@@ -683,9 +725,9 @@ if __name__ == "__main__":
     model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CapsNet(input_shape=x_train.shape[1:],
                                                   n_class=len(np.unique(np.argmax(y_train, 1))),
                                                   routings=args.routings)
-    model.summary()
-    hierarchy_train_model.summary()
-    hierarchy_eval_model.summary()
+    #model.summary()
+    #hierarchy_train_model.summary()
+    #hierarchy_eval_model.summary()
     # train or test
     if args.weights is not None:  # init the model weights with provided one
         model.load_weights(args.weights)
