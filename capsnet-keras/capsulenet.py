@@ -39,7 +39,7 @@ mean = -1          # Dummy Values
 log_variance = -1  # Dummy Values
 
 # Change this dataset
-dataset_path = "../Dataset/Animals/"
+dataset_path = "../../Dataset/Animals/"
 
 def CapsNet(input_shape, n_class, routings):
     """
@@ -50,6 +50,7 @@ def CapsNet(input_shape, n_class, routings):
     :return: Two Keras Models, the first one used for training, and the second one for evaluation.
             `eval_model` can also be used for training.
     """
+    
     x = layers.Input(shape=input_shape)
 
     # Layer 1: Just a conventional Conv2D layer
@@ -93,8 +94,9 @@ def CapsNet(input_shape, n_class, routings):
     out_caps = Length(name='capsnet')(z)
 
     # Hierarchy output section
-    #------------------------------------------------------------------------------------------------------------------------------
-    y = layers.Input(shape=(n_class,))
+    #----------------------------------------------------------------------------------------------------------------------------
+    
+    y = layers.Input(shape=((n_class + 1),))
     masked_by_y = Mask()([z, y])  # The true label is used to mask the output of capsule layer. For training
     masked = Mask()(z)  # Mask using the capsule with maximal length. For prediction
 
@@ -628,11 +630,13 @@ def load_custom_dataset(dataset_path):
 
     classes = {'animals':['cats', 'dogs', 'foxes', 'hyenas', 'wolves'],'birds':['ducks','eagles','hawks','parrots','sparrows'],'furniture':['chair','sofa','table']}
     class_encodings = {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4, 'ducks':5, 'eagles':6, 'hawks':7, 'parrots':8, 'sparrows':9, 'chair':10, 'sofa':11, 'table':12}
+    # classes = {'animals':['cats', 'dogs', 'foxes', 'hyenas', 'wolves'],'birds':['ducks','eagles','parrots','sparrows'],'furniture':['chair','sofa','table']}
+    # class_encodings = {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4, 'ducks':5, 'eagles':6, 'parrots':8, 'sparrows':9, 'chair':10, 'sofa':11, 'table':12}
 
     for class_ in classes:
-        dataset_path = "../Dataset/"+class_[0].upper()+class_[1:]+'/'
-        
-        y_train_dataframe = pd.read_csv(dataset_path+class_+'.csv', encoding = "ISO-8859-1")
+        dataset_path = "../../Dataset/"+class_[0].upper()+class_[1:]+'/'
+
+        y_train_dataframe = pd.read_csv("./csv_folder/"+class_+'.csv', encoding = "ISO-8859-1")
         for sub_class in classes[class_]:
             print("Processing class", sub_class+"..")
             img_dir = dataset_path+str(sub_class)+'/'
@@ -649,10 +653,12 @@ def load_custom_dataset(dataset_path):
                     
                     # y_test_output logic with x_test and y_test append
                     for index, row in y_train_dataframe.iterrows():
-                        if get_file_name(current_file) == row['File Name'].encode('utf-8').strip():
+                        if get_file_name(current_file) == row['File Name']:
                             x_test.append(img)
+                            # if(sub_class == 'table'):
+                            print(class_encodings[sub_class], row['File Name'])
                             y_test.append(class_encodings[sub_class])
-                            y_test_features = row['Features'].encode('utf-8').strip()
+                            y_test_features = row['Features']
                             y_test_output.append(build_output(y_test_features))
                             break
                 else:
@@ -662,10 +668,12 @@ def load_custom_dataset(dataset_path):
                     
                     # y_train_output logic with x_train and y_train append
                     for index, row in y_train_dataframe.iterrows():
-                        if get_file_name(current_file) == row['File Name'].encode('utf-8').strip():
+                        if get_file_name(current_file) == row['File Name']:
                             x_train.append(img)
+                            print(class_encodings[sub_class], row['File Name'])
                             y_train.append(class_encodings[sub_class])
-                            y_train_features = row['Features'].encode('utf-8').strip()
+                            
+                            y_train_features = row['Features']
                             y_train_output.append(build_output(y_train_features))
                             break
 
