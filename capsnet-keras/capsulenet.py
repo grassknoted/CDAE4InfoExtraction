@@ -631,7 +631,8 @@ def load_custom_dataset(dataset_path):
 
     for class_ in classes:
         dataset_path = "../Dataset/"+class_[0].upper()+class_[1:]+'/'
-        y_train_dataframe = pd.read_csv(dataset_path+class_+'.csv')
+        
+        y_train_dataframe = pd.read_csv(dataset_path+class_+'.csv', encoding = "ISO-8859-1")
         for sub_class in classes[class_]:
             print("Processing class", sub_class+"..")
             img_dir = dataset_path+str(sub_class)+'/'
@@ -648,10 +649,10 @@ def load_custom_dataset(dataset_path):
                     
                     # y_test_output logic with x_test and y_test append
                     for index, row in y_train_dataframe.iterrows():
-                        if get_file_name(current_file) == row['File Name']:
+                        if get_file_name(current_file) == row['File Name'].encode('utf-8').strip():
                             x_test.append(img)
                             y_test.append(class_encodings[sub_class])
-                            y_test_features = row['Features']
+                            y_test_features = row['Features'].encode('utf-8').strip()
                             y_test_output.append(build_output(y_test_features))
                             break
                 else:
@@ -661,10 +662,10 @@ def load_custom_dataset(dataset_path):
                     
                     # y_train_output logic with x_train and y_train append
                     for index, row in y_train_dataframe.iterrows():
-                        if get_file_name(current_file) == row['File Name']:
+                        if get_file_name(current_file) == row['File Name'].encode('utf-8').strip():
                             x_train.append(img)
                             y_train.append(class_encodings[sub_class])
-                            y_train_features = row['Features']
+                            y_train_features = row['Features'].encode('utf-8').strip()
                             y_train_output.append(build_output(y_train_features))
                             break
 
