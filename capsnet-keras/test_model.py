@@ -136,7 +136,7 @@ for features in feature_attributes:
 
 fig, ax = plt.subplots()
 # print(min(feature_probabilities), max(feature_probabilities))
-plt.bar( features_vector, feature_probabilities)
+plt.barh( features_vector, feature_probabilities)
 # plt.xticks(x, features_vector)
 plt.show()
 # print("Predicted as: ", inverse_class_dict[np.argmax(prediction[0], 1)[0]])
