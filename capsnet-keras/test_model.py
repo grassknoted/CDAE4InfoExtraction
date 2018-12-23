@@ -82,9 +82,10 @@ print("\nClass predicted:",inverse_class_dict[np.argmax(prediction[0], 1)[0]],"\
 # for attribute in prediction:
 feature_attributes = []
 for i in range(1, len(prediction)):
-    if(float(prediction[i][0][0]) >= 0.500000):
-        feature_attributes.append(features_vector[i-1])
+    #if(float(prediction[i][0][0]) >= 0.500000):
+    #    feature_attributes.append(features_vector[i-1])
+    print(features_vector[i-1]," : ",prediction[i][0][0])
 
 feature_attributes = "\n".join(feature_attributes)
-print("Features:\n"+feature_attributes,"\n\n")
+#print("Features:\n"+feature_attributes,"\n\n")
 # print("Predicted as: ", inverse_class_dict[np.argmax(prediction[0], 1)[0]])
