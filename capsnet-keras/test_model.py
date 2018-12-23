@@ -11,7 +11,7 @@ from keras.models import load_model
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 save_dir = './result'
-dataset_path = "../Dataset/Animals/"
+dataset_path = "../../Dataset/Animals/"
 
 # Argument Parser
 parser = argparse.ArgumentParser(description="Parameters for testing the model")
@@ -45,17 +45,18 @@ elif args.class_to_classify == 'wolf' or args.class_to_classify == 'w':
 
 if args.image is None:
     print("No image number entered, by default "+args.class_to_classify+"1.jpg is selected.")
+print("No image number entered, by default "+args.class_to_classify+"1.jpg is selected.")
 
 default_routing = 3
 number_of_classes = 5
 inverse_class_dict = {0:'Cat', 1:"Dog", 2:"Fox", 3:"Hyena", 4:"Wolves"}
 
 # Need to change this line to stop loading the unnecessary training dataset while testing
-(x_train, y_train), (x_test, y_test) = CAPS.load_custom_dataset(dataset_path)
+(x_train, y_train, y_train_output), (x_test, y_test, y_test_output) = CAPS.load_custom_dataset(dataset_path)
 
-model, eval_model, manipulate_model = CAPS.CapsNet(input_shape=x_train.shape[1:], n_class=len(np.unique(np.argmax(y_train, 1))), routings=default_routing)
+model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CAPS.CapsNet(input_shape=x_train.shape[1:], n_class=len(np.unique(np.argmax(y_train, 1))), routings=default_routing)
 
-model.load_weights(save_dir + '/weights-507.h5')
+hierarchy_eval_model.load_weights(save_dir + '/Cosine_similarity_trained_model.h5')
 
 image_number = args.image
 
