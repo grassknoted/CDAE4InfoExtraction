@@ -83,7 +83,6 @@ elif args.class_to_classify == 'table':
 
 if args.image is None:
     print("No image number entered, by default "+args.class_to_classify+"1.jpg is selected.")
-print("No image number entered, by default "+args.class_to_classify+"1.jpg is selected.")
 
 default_routing = 3
 number_of_classes = 5
