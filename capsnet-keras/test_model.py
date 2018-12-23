@@ -49,12 +49,16 @@ print("No image number entered, by default "+args.class_to_classify+"1.jpg is se
 
 default_routing = 3
 number_of_classes = 5
-inverse_class_dict = {0:'Cat', 1:"Dog", 2:"Fox", 3:"Hyena", 4:"Wolves"}
+inverse_class_dict = {0:'Cat', 1:"Dog", 2:"Fox", 3:"Hyena", 4:"Wolves", 5:"Ducks",6:"Eagles", 7:"Hawks", 8:"Parrots", 9:"Sparrows", 10:"Chair", 11:"Sofa", 12:"Table"}
+features_vector = ["Face", "Eyes", "Mouth", "Snout", "Ears", "Whiskers", "Nose", "Teeth", "Beak", "Tongue", 
+                "Body", "Wings", "Paws", "Tail", "Legs", "Surface","Arm Rest", "Base", "Pillows", "Cushion", 
+                "Drawer", "Knob", "Mattress", "Colour", "Brown", "Black", "Grey", "White", "Purple", "Pink", 
+                "Yellow", "Turqoise", "Unknown"]
 
 # Need to change this line to stop loading the unnecessary training dataset while testing
-(x_train, y_train, y_train_output), (x_test, y_test, y_test_output) = CAPS.load_custom_dataset(dataset_path)
+# (x_train, y_train, y_train_output), (x_test, y_test, y_test_output) = CAPS.load_custom_dataset(dataset_path)
 
-model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CAPS.CapsNet(input_shape=x_train.shape[1:], n_class=len(np.unique(np.argmax(y_train, 1))), routings=default_routing)
+model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CAPS.CapsNet(input_shape=(28, 28, 1), n_class=13, routings=default_routing)
 
 hierarchy_eval_model.load_weights(save_dir + '/Cosine_similarity_trained_model.h5')
 
@@ -73,6 +77,15 @@ test_image.append(img)
 test_image = np.array(test_image)
 test_image = test_image.reshape(-1, 28, 28, 1).astype('float32') / 255.
 
-prediction = eval_model.predict(test_image, batch_size=100)
+prediction = hierarchy_eval_model.predict(test_image, batch_size=100)
+# print(prediction)
+print("\nClass predicted:",inverse_class_dict[np.argmax(prediction[0], 1)[0]],"\n")
+# for attribute in prediction:
+feature_attributes = []
+for i in range(1, len(prediction)):
+    if(float(prediction[i][0][0]) >= 0.500000):
+        feature_attributes.append(features_vector[i-1])
 
-print("Predicted as: ", inverse_class_dict[np.argmax(prediction[0], 1)[0]])
+feature_attributes = "\n".join(feature_attributes)
+print("Features:\n"+feature_attributes,"\n\n")
+# print("Predicted as: ", inverse_class_dict[np.argmax(prediction[0], 1)[0]])
