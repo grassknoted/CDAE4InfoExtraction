@@ -27,7 +27,7 @@ def cos_dist_output_shape(shapes):
     return (shape1[0],1)
 
 def cosine_similarity(y_true, y_pred):
-    distance = Lambda(cosine_distance, output_shape=cos_dist_output_shape)([y_true, y_pred])
+    distance = Lambda(cosine_distance, output_shape=cos_dist_output_shape)([y_pred, y_true])
     return distance
 
 import os
@@ -56,7 +56,7 @@ mean = -1          # Dummy Values
 log_variance = -1  # Dummy Values
 
 # Change this dataset
-dataset_path = "../../Dataset/Animals/"
+dataset_path = "../../Dataset/"
 
 def CapsNet(input_shape, n_class, routings):
     """
@@ -327,7 +327,7 @@ def train(model, data, args):
     model.compile(optimizer=optimizers.Adam(lr=args.lr),
                   loss=all_losses,
                   loss_weights=all_loss_weights,
-                  metrics={'capsnet': cosine_similarity})
+                  metrics={'capsnet': 'accuracy'})
 
     
     # Training without data augmentation (preferred) :
@@ -744,6 +744,8 @@ if __name__ == "__main__":
 
     # Load data
     (x_train, y_train, y_train_output), (x_test, y_test, y_test_output) = load_custom_dataset(args.dataset)
+    print("\n\n\n\n\n",x_train.shape[1:])
+    print("N class:",len(np.unique(np.argmax(y_train, 1))),"\n\n\n\n\n")
 
     # Define model
     model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CapsNet(input_shape=x_train.shape[1:],

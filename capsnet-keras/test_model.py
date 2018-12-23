@@ -83,6 +83,7 @@ elif args.class_to_classify == 'table':
 
 if args.image is None:
     print("No image number entered, by default "+args.class_to_classify+"1.jpg is selected.")
+print("No image number entered, by default "+args.class_to_classify+"1.jpg is selected.")
 
 default_routing = 3
 number_of_classes = 5
@@ -136,7 +137,7 @@ for features in feature_attributes:
 
 fig, ax = plt.subplots()
 # print(min(feature_probabilities), max(feature_probabilities))
-plt.barh( features_vector, feature_probabilities)
+plt.bar( features_vector, feature_probabilities)
 # plt.xticks(x, features_vector)
 plt.show()
 # print("Predicted as: ", inverse_class_dict[np.argmax(prediction[0], 1)[0]])
