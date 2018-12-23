@@ -96,7 +96,7 @@ def CapsNet(input_shape, n_class, routings):
     # Hierarchy output section
     #----------------------------------------------------------------------------------------------------------------------------
     
-    y = layers.Input(shape=((n_class + 1),))
+    y = layers.Input(shape=((n_class),))
     masked_by_y = Mask()([z, y])  # The true label is used to mask the output of capsule layer. For training
     masked = Mask()(z)  # Mask using the capsule with maximal length. For prediction
 
@@ -634,7 +634,7 @@ def load_custom_dataset(dataset_path):
     # class_encodings = {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4, 'ducks':5, 'eagles':6, 'parrots':8, 'sparrows':9, 'chair':10, 'sofa':11, 'table':12}
 
     for class_ in classes:
-        dataset_path = "../../Dataset/"+class_[0].upper()+class_[1:]+'/'
+        dataset_path = "../Dataset/"+class_[0].upper()+class_[1:]+'/'
 
         y_train_dataframe = pd.read_csv("./csv_folder/"+class_+'.csv', encoding = "ISO-8859-1")
         for sub_class in classes[class_]:
@@ -656,7 +656,6 @@ def load_custom_dataset(dataset_path):
                         if get_file_name(current_file) == row['File Name']:
                             x_test.append(img)
                             # if(sub_class == 'table'):
-                            print(class_encodings[sub_class], row['File Name'])
                             y_test.append(class_encodings[sub_class])
                             y_test_features = row['Features']
                             y_test_output.append(build_output(y_test_features))
@@ -670,7 +669,6 @@ def load_custom_dataset(dataset_path):
                     for index, row in y_train_dataframe.iterrows():
                         if get_file_name(current_file) == row['File Name']:
                             x_train.append(img)
-                            print(class_encodings[sub_class], row['File Name'])
                             y_train.append(class_encodings[sub_class])
                             
                             y_train_features = row['Features']
