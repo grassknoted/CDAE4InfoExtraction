@@ -13,6 +13,23 @@ Result:
     Validation accuracy > 99.5% after 20 epochs. Converge to 99.66% after 50 epochs.
     About 110 seconds per epoch on a single Nvidia GTX 1070 GPU card
 """
+
+import keras.backend as K
+
+def cosine_distance(vests):
+    x, y = vests
+    x = K.l2_normalize(x, axis=-1)
+    y = K.l2_normalize(y, axis=-1)
+    return -K.mean(x * y, axis=-1, keepdims=True)
+
+def cos_dist_output_shape(shapes):
+    shape1, shape2 = shapes
+    return (shape1[0],1)
+
+def cosine_similarity(y_true, y_pred):
+    distance = Lambda(cosine_distance, output_shape=cos_dist_output_shape)([y_true, y_pred])
+    return distance
+
 import os
 import cv2
 import glob
@@ -310,7 +327,7 @@ def train(model, data, args):
     model.compile(optimizer=optimizers.Adam(lr=args.lr),
                   loss=all_losses,
                   loss_weights=all_loss_weights,
-                  metrics={'capsnet': 'accuracy'})
+                  metrics={'capsnet': cosine_similarity})
 
     
     # Training without data augmentation (preferred) :
@@ -634,7 +651,7 @@ def load_custom_dataset(dataset_path):
     # class_encodings = {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4, 'ducks':5, 'eagles':6, 'parrots':8, 'sparrows':9, 'chair':10, 'sofa':11, 'table':12}
 
     for class_ in classes:
-        dataset_path = "../Dataset/"+class_[0].upper()+class_[1:]+'/'
+        dataset_path = "../../Dataset/"+class_[0].upper()+class_[1:]+'/'
 
         y_train_dataframe = pd.read_csv("./csv_folder/"+class_+'.csv', encoding = "ISO-8859-1")
         for sub_class in classes[class_]:
@@ -697,8 +714,8 @@ if __name__ == "__main__":
 
     # setting the hyper parameters
     parser = argparse.ArgumentParser(description="Capsule Network on MNIST.")
-    parser.add_argument('--epochs', default=50, type=int)
-    parser.add_argument('--batch_size', default=100, type=int)
+    parser.add_argument('--epochs', default=100, type=int)
+    parser.add_argument('--batch_size', default=128, type=int)
     parser.add_argument('--dataset', default=dataset_path, type=str, help="Relative path to the custom dataset to use")
     parser.add_argument('--lr', default=0.001, type=float,
                         help="Initial learning rate")
@@ -715,8 +732,8 @@ if __name__ == "__main__":
     parser.add_argument('--save_dir', default='./result')
     parser.add_argument('-t', '--testing', action='store_true',
                         help="Test the trained model on testing dataset")
-    parser.add_argument('--digit', default=5, type=int,
-                        help="Digit to manipulate")
+    # parser.add_argument('--digit', default=5, type=int,
+    #                     help="Digit to manipulate")
     parser.add_argument('-w', '--weights', default=None,
                         help="The path of the saved weights. Should be specified when testing")
     args = parser.parse_args()
