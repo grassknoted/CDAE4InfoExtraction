@@ -1,6 +1,9 @@
 # CDAE4InfoExtraction [![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/grassknoted/CDAE4InfoExtraction/blob/master/LICENSE)
 [WIP] Cross-domain Auto-encoders for Information Extraction, using Capsule Networks
 
+## Custom Architecture
+
+![Architecture](https://i.ibb.co/t22F1ys/model.png)
 
 ## Load the data and preprocess it into a 28 by 28 form
 
