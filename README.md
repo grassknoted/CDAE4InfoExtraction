@@ -1,5 +1,5 @@
 # CDAE4InfoExtraction [![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/grassknoted/CDAE4InfoExtraction/blob/master/LICENSE)
-[WIP] Cross-domain Auto-encoders for Information Extraction, using Capsule Networks
+Cross-domain Auto-encoders for Information Extraction, using Capsule Networks
 
 ## Custom Architecture
 
