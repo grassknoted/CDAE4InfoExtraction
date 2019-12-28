@@ -12,7 +12,6 @@ from keras.models import load_model
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 save_dir = './result'
-dataset_path = "../Dataset/Birds/"
 
 # Argument Parser
 parser = argparse.ArgumentParser(description="Parameters for testing the model")
@@ -24,7 +23,7 @@ if args.class_to_classify is None:
     print("Please enter a class to proceed.\n")
     exit(0)
 
-if args.class_to_classify not in ['cat', 'dog', 'fox', 'hyena', 'wolf', 'c', 'd', 'f', 'h', 'w', 'hawk']:
+if args.class_to_classify not in ['cat', 'dog', 'fox', 'hyena', 'wolf', 'c', 'd', 'f', 'h', 'w', 'duck', 'eagle', 'hawk', 'parrot', 'sparrow', 'chair', 'table', 'sofa', 'nightstand', 'bed']:
     print("Class must be either: 'cat' (c), 'dog' (d), 'fox' (f), 'hyena' (h) or 'wolf' (w).")
     exit(0)
 # {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4, 'ducks':5, 'eagles':6, 'hawks':7, 'parrots':8, 'sparrows':9, 'chair':10, 'sofa':11, 'table':12}
@@ -52,7 +51,7 @@ elif args.class_to_classify == 'duck':
     current_class = 'duck'
     current_class_folder = 'ducks'
     current_domain = "Birds"
-elif args.class_to_classify == 'eagle':
+elif args.class_to_classify == 'eagle'  or args.class_to_classify == 'e':
     current_class = 'eagle'
     current_class_folder = 'eagles'
     current_domain = "Birds"
@@ -60,11 +59,11 @@ elif args.class_to_classify == 'hawk':
     current_class = 'hawk'
     current_class_folder = 'hawks'
     current_domain = "Birds"
-elif args.class_to_classify == 'parrot' or args.class_to_classify == 'w':
+elif args.class_to_classify == 'parrot' or args.class_to_classify == 'p':
     current_class = 'parrot'
     current_class_folder = 'parrots'
     current_domain = "Birds"
-elif args.class_to_classify == 'sparrow' or args.class_to_classify == 'w':
+elif args.class_to_classify == 'sparrow' or args.class_to_classify == 's':
     current_class = 'sparrow'
     current_class_folder = 'sparrows'
     current_domain = "Birds"
@@ -72,21 +71,31 @@ elif args.class_to_classify == 'chair':
     current_class = 'chair'
     current_class_folder = 'chair'
     current_domain = "Furniture"
-elif args.class_to_classify == 'sofa':
-    current_class = 'sofa'
-    current_class_folder = 'sofa'
-    current_domain = "Furniture"
 elif args.class_to_classify == 'table':
     current_class = 'table'
     current_class_folder = 'table'
     current_domain = "Furniture"
+elif args.class_to_classify == 'sofa':
+    current_class = 'sofa'
+    current_class_folder = 'sofa'
+    current_domain = "Furniture"
+elif args.class_to_classify == 'nightstand':
+    current_class = 'nightstand'
+    current_class_folder = 'nightstand'
+    current_domain = "Furniture"
+elif args.class_to_classify == 'bed':
+    current_class = 'bed'
+    current_class_folder = 'bed'
+    current_domain = "Furniture"
+
+
+dataset_path = "../Dataset/"+current_domain+"/"
 
 if args.image is None:
     print("No image number entered, by default "+args.class_to_classify+"1.jpg is selected.")
-print("No image number entered, by default "+args.class_to_classify+"1.jpg is selected.")
 
 default_routing = 3
-number_of_classes = 5
+
 inverse_class_dict = {0:'Cat', 1:"Dog", 2:"Fox", 3:"Hyena", 4:"Wolves", 5:"Ducks",6:"Eagles", 7:"Hawks", 8:"Parrots", 9:"Sparrows", 10:"Chair", 11:"Table", 12:"Sofa", 13:"Nightstand", 14:"Bed" }
 features_vector = ["Face", "Eyes", "Mouth", "Snout", "Ears", "Whiskers", "Nose", "Teeth", "Beak", "Tongue", 
                 "Body", "Wings", "Paws", "Tail", "Legs", "Surface","Arm Rest", "Base", "Pillows", "Cushion", 
