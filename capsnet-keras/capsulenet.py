@@ -56,7 +56,7 @@ mean = -1          # Dummy Values
 log_variance = -1  # Dummy Values
 
 # Change this dataset
-dataset_path = "../../Dataset/"
+dataset_path = "../Dataset/"
 
 def CapsNet(input_shape, n_class, routings):
     """
@@ -645,13 +645,13 @@ def load_custom_dataset(dataset_path):
     y_train_output = []
     y_test_output = []
 
-    classes = {'animals':['cats', 'dogs', 'foxes', 'hyenas', 'wolves'],'birds':['ducks','eagles','hawks','parrots','sparrows'],'furniture':['chair','sofa','table']}
-    class_encodings = {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4, 'ducks':5, 'eagles':6, 'hawks':7, 'parrots':8, 'sparrows':9, 'chair':10, 'sofa':11, 'table':12}
+    classes = {'animals':['cats', 'dogs', 'fox', 'hyenas', 'wolves'],'birds':['ducks','eagles','hawks','parrots','sparrows'],'furniture':['chair','table', 'sofa','nightstand', 'bed']}
+    class_encodings = {'cats':0, 'dogs':1, 'fox':2, 'hyenas':3, 'wolves':4, 'ducks':5, 'eagles':6, 'hawks':7, 'parrots':8, 'sparrows':9, 'chair':10, 'table':11, 'sofa':12, 'nightstand':13, 'bed':14}
     # classes = {'animals':['cats', 'dogs', 'foxes', 'hyenas', 'wolves'],'birds':['ducks','eagles','parrots','sparrows'],'furniture':['chair','sofa','table']}
     # class_encodings = {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4, 'ducks':5, 'eagles':6, 'parrots':8, 'sparrows':9, 'chair':10, 'sofa':11, 'table':12}
 
     for class_ in classes:
-        dataset_path = "../../Dataset/"+class_[0].upper()+class_[1:]+'/'
+        dataset_path = "../Dataset/"+class_[0].upper()+class_[1:]+'/'
 
         y_train_dataframe = pd.read_csv("./csv_folder/"+class_+'.csv', encoding = "ISO-8859-1")
         for sub_class in classes[class_]:
@@ -663,7 +663,7 @@ def load_custom_dataset(dataset_path):
             for current_file in files:
                 random_number = random.randint(1,10)
 
-                if(random_number == 7):
+                if(random_number == 7 or random_number == 3):
                     img = cv2.imread(current_file)
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                     img = cv2.resize(img, (28, 28))
@@ -703,6 +703,8 @@ def load_custom_dataset(dataset_path):
     y_test_output = np.array(y_test_output)
     x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.
     y_test = to_categorical(y_test.astype('float32'))
+
+    print("Y Set:", len(np.unique(np.argmax(y_train, 1))), "=", np.unique(np.argmax(y_train, 1)))
 
     return (x_train, y_train, y_train_output), (x_test, y_test, y_test_output)
 
@@ -744,8 +746,9 @@ if __name__ == "__main__":
 
     # Load data
     (x_train, y_train, y_train_output), (x_test, y_test, y_test_output) = load_custom_dataset(args.dataset)
-    print("\n\n\n\n\n",x_train.shape[1:])
-    print("N class:",len(np.unique(np.argmax(y_train, 1))),"\n\n\n\n\n")
+    print("\nLength and size:",len(x_train),"x", x_train.shape[1:])
+    print("Steps to get number of classes:",np.unique(y_train))
+    print("Number of classes:",len(np.unique(np.argmax(y_train, 1))),"\n")
 
     # Define model
     model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CapsNet(input_shape=x_train.shape[1:],
@@ -760,6 +763,7 @@ if __name__ == "__main__":
     if not args.testing:
         # Send hierarchy_train_model along with changes in data format
         train(model=hierarchy_train_model, data=((x_train, y_train, y_train_output), (x_test, y_test, y_test_output)), args=args)
+
     else:  # as long as weights are given, will run testing
         if args.weights is None:
             print('No weights are provided. Will test using random initialized weights.')

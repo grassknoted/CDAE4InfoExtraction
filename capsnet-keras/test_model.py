@@ -12,7 +12,7 @@ from keras.models import load_model
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 save_dir = './result'
-dataset_path = "../../Dataset/Animals/"
+dataset_path = "../Dataset/Birds/"
 
 # Argument Parser
 parser = argparse.ArgumentParser(description="Parameters for testing the model")
@@ -24,7 +24,7 @@ if args.class_to_classify is None:
     print("Please enter a class to proceed.\n")
     exit(0)
 
-if args.class_to_classify not in ['cat', 'dog', 'fox', 'hyena', 'wolf', 'c', 'd', 'f', 'h', 'w']:
+if args.class_to_classify not in ['cat', 'dog', 'fox', 'hyena', 'wolf', 'c', 'd', 'f', 'h', 'w', 'hawk']:
     print("Class must be either: 'cat' (c), 'dog' (d), 'fox' (f), 'hyena' (h) or 'wolf' (w).")
     exit(0)
 # {'cats':0, 'dogs':1, 'foxes':2, 'hyenas':3, 'wolves':4, 'ducks':5, 'eagles':6, 'hawks':7, 'parrots':8, 'sparrows':9, 'chair':10, 'sofa':11, 'table':12}
@@ -87,7 +87,7 @@ print("No image number entered, by default "+args.class_to_classify+"1.jpg is se
 
 default_routing = 3
 number_of_classes = 5
-inverse_class_dict = {0:'Cat', 1:"Dog", 2:"Fox", 3:"Hyena", 4:"Wolves", 5:"Ducks",6:"Eagles", 7:"Hawks", 8:"Parrots", 9:"Sparrows", 10:"Chair", 11:"Sofa", 12:"Table"}
+inverse_class_dict = {0:'Cat', 1:"Dog", 2:"Fox", 3:"Hyena", 4:"Wolves", 5:"Ducks",6:"Eagles", 7:"Hawks", 8:"Parrots", 9:"Sparrows", 10:"Chair", 11:"Table", 12:"Sofa", 13:"Nightstand", 14:"Bed" }
 features_vector = ["Face", "Eyes", "Mouth", "Snout", "Ears", "Whiskers", "Nose", "Teeth", "Beak", "Tongue", 
                 "Body", "Wings", "Paws", "Tail", "Legs", "Surface","Arm Rest", "Base", "Pillows", "Cushion", 
                 "Drawer", "Knob", "Mattress", "Colour", "Brown", "Black", "Grey", "White", "Purple", "Pink", 
@@ -96,7 +96,7 @@ features_vector = ["Face", "Eyes", "Mouth", "Snout", "Ears", "Whiskers", "Nose",
 # Need to change this line to stop loading the unnecessary training dataset while testing
 # (x_train, y_train, y_train_output), (x_test, y_test, y_test_output) = CAPS.load_custom_dataset(dataset_path)
 
-model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CAPS.CapsNet(input_shape=(28, 28, 1), n_class=13, routings=default_routing)
+model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CAPS.CapsNet(input_shape=(28, 28, 1), n_class=15, routings=default_routing)
 
 hierarchy_eval_model.load_weights(save_dir + '/Cosine_similarity_trained_model.h5')
 
@@ -135,9 +135,17 @@ print("Features:")
 for features in feature_attributes:
     print(features, ":", feature_attributes[features])
 
+# Eliminate empty bars in the bar graph
+final_feature_probabilities = []
+final_features_vector = []
+for i in range(len(features_vector)):
+    if feature_probabilities[i] > 0.1:
+        final_feature_probabilities.append(feature_probabilities[i])
+        final_features_vector.append(features_vector[i])
+
 fig, ax = plt.subplots()
 # print(min(feature_probabilities), max(feature_probabilities))
-plt.bar( features_vector, feature_probabilities)
+plt.bar( final_features_vector, final_feature_probabilities)
 # plt.xticks(x, features_vector)
 plt.show()
 # print("Predicted as: ", inverse_class_dict[np.argmax(prediction[0], 1)[0]])
