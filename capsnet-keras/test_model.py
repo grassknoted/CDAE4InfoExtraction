@@ -92,7 +92,7 @@ elif args.class_to_classify == 'bed':
 dataset_path = "../Dataset/"+current_domain+"/"
 
 if args.image is None:
-    print("No image number entered, by default "+args.class_to_classify+"1.jpg is selected.")
+    print("No image number entered, by default "+args.class_to_classify+"001.jpg is selected.")
 
 default_routing = 3
 
@@ -105,7 +105,7 @@ features_vector = ["Face", "Eyes", "Mouth", "Snout", "Ears", "Whiskers", "Nose",
 # Need to change this line to stop loading the unnecessary training dataset while testing
 # (x_train, y_train, y_train_output), (x_test, y_test, y_test_output) = CAPS.load_custom_dataset(dataset_path)
 
-model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CAPS.CapsNet(input_shape=(28, 28, 1), n_class=15, routings=default_routing)
+model, eval_model, manipulate_model, hierarchy_train_model, hierarchy_eval_model = CAPS.CapsNet(input_shape=(112, 112, 1), n_class=15, routings=default_routing)
 
 hierarchy_eval_model.load_weights(save_dir + '/Cosine_similarity_trained_model.h5')
 

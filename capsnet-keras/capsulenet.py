@@ -58,6 +58,8 @@ log_variance = -1  # Dummy Values
 # Change this dataset
 dataset_path = "../Dataset/"
 
+input_image_height, input_image_width = (28, 28)
+
 def CapsNet(input_shape, n_class, routings):
     """
     A Capsule Network on MNIST.
@@ -666,7 +668,7 @@ def load_custom_dataset(dataset_path):
                 if(random_number == 7 or random_number == 3):
                     img = cv2.imread(current_file)
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                    img = cv2.resize(img, (28, 28))
+                    img = cv2.resize(img, (input_image_height, input_image_width))
                     
                     # y_test_output logic with x_test and y_test append
                     for index, row in y_train_dataframe.iterrows():
@@ -680,7 +682,7 @@ def load_custom_dataset(dataset_path):
                 else:
                     img = cv2.imread(current_file)
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                    img = cv2.resize(img, (28, 28))
+                    img = cv2.resize(img, (input_image_height, input_image_width))
                     
                     # y_train_output logic with x_train and y_train append
                     for index, row in y_train_dataframe.iterrows():
@@ -716,7 +718,7 @@ if __name__ == "__main__":
 
     # setting the hyper parameters
     parser = argparse.ArgumentParser(description="Capsule Network on MNIST.")
-    parser.add_argument('--epochs', default=100, type=int)
+    parser.add_argument('--epochs', default=1, type=int)
     parser.add_argument('--batch_size', default=128, type=int)
     parser.add_argument('--dataset', default=dataset_path, type=str, help="Relative path to the custom dataset to use")
     parser.add_argument('--lr', default=0.001, type=float,
